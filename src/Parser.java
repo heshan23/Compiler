@@ -135,9 +135,10 @@ public class Parser {
         if (!match(TokenType.IDENFR)) {
             error();
         }
-        if (match(TokenType.LBRACK)) {
-            while (!match(TokenType.RBRACK)) {
-                constExps.add(constExp());
+        while (match(TokenType.LBRACK)) {
+            constExps.add(constExp());
+            if (!match(TokenType.RBRACK)) {
+                error();
             }
         }
         if (match(TokenType.ASSIGN)) {
@@ -265,9 +266,15 @@ public class Parser {
             return stmtFor();
         }
         if (match(TokenType.BREAKTK)) {
+            if (!match(TokenType.SEMICN)) {
+                error();
+            }
             return new BreakStmt();
         }
         if (match(TokenType.CONTINUETK)) {
+            if (!match(TokenType.SEMICN)) {
+                error();
+            }
             return new ContinueStmt();
         }
         if (match(TokenType.RETURNTK)) {
@@ -503,6 +510,9 @@ public class Parser {
             index += 2;
             if (!match(TokenType.RPARENT)) {
                 funcRParams = funcRParams();
+                if (!match(TokenType.RPARENT)) {
+                    error();
+                }
             }
             return new UnaryExp(ident, funcRParams);
         }
