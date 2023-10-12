@@ -1,8 +1,13 @@
+import token.Token;
+import token.TokenType;
+
+import java.util.ArrayList;
+
 public class Lexer {
     private final String in;
     private int pos;
     private StringBuilder curToken;
-    private String symbol;
+    private TokenType symbol;
     private int line;
 
     public Lexer(String in) {
@@ -13,7 +18,7 @@ public class Lexer {
         symbol = null;
     }
 
-    public boolean hasNext() {
+    private boolean hasNext() {
         curToken = new StringBuilder();
         symbol = null;
         while (pos < in.length() && isBlank(in.charAt(pos))) {
@@ -28,12 +33,12 @@ public class Lexer {
             }
             reserve();
         } else if (Character.isDigit(in.charAt(pos))) {
-            symbol = "INTCON";
+            symbol = TokenType.INTCON;
             while (Character.isDigit(in.charAt(pos))) {
                 catToken();
             }
         } else if (in.charAt(pos) == '"') {
-            symbol = "STRCON";
+            symbol = TokenType.STRCON;
             catToken();
             while (in.charAt(pos) != '"') {
                 catToken();
@@ -43,33 +48,33 @@ public class Lexer {
             catToken();
             if (in.charAt(pos) == '=') {
                 catToken();
-                symbol = "NEQ";
+                symbol = TokenType.NEQ;
             } else {
-                symbol = "NOT";
+                symbol = TokenType.NOT;
             }
         } else if (in.charAt(pos) == '&') {
             catToken();
             if (in.charAt(pos) == '&') {
                 catToken();
-                symbol = "AND";
+                symbol = TokenType.AND;
             }
             //else error();
         } else if (in.charAt(pos) == '|') {
             catToken();
             if (in.charAt(pos) == '|') {
                 catToken();
-                symbol = "OR";
+                symbol = TokenType.OR;
             }
             //else error();
         } else if (in.charAt(pos) == '+') {
             catToken();
-            symbol = "PLUS";
+            symbol = TokenType.PLUS;
         } else if (in.charAt(pos) == '-') {
             catToken();
-            symbol = "MINU";
+            symbol = TokenType.MINU;
         } else if (in.charAt(pos) == '*') {
             catToken();
-            symbol = "MULT";
+            symbol = TokenType.MULT;
         } else if (in.charAt(pos) == '/') {
             if (in.charAt(pos + 1) == '/') {
                 while (in.charAt(pos) != '\n') {
@@ -84,69 +89,69 @@ public class Lexer {
                 return hasNext();
             } else {
                 catToken();
-                symbol = "DIV";
+                symbol = TokenType.DIV;
             }
         } else if (in.charAt(pos) == '%') {
             catToken();
-            symbol = "MOD";
+            symbol = TokenType.MOD;
         } else if (in.charAt(pos) == '<') {
             catToken();
             if (in.charAt(pos) == '=') {
                 catToken();
-                symbol = "LEQ";
+                symbol = TokenType.LEQ;
             } else {
-                symbol = "LSS";
+                symbol = TokenType.LSS;
             }
         } else if (in.charAt(pos) == '>') {
             catToken();
             if (in.charAt(pos) == '=') {
                 catToken();
-                symbol = "GEQ";
+                symbol = TokenType.GEQ;
             } else {
-                symbol = "GRE";
+                symbol = TokenType.GRE;
             }
         } else if (in.charAt(pos) == '=') {
             catToken();
             if (in.charAt(pos) == '=') {
                 catToken();
-                symbol = "EQL";
+                symbol = TokenType.EQL;
             } else {
-                symbol = "ASSIGN";
+                symbol = TokenType.ASSIGN;
             }
         } else if (in.charAt(pos) == ';') {
             catToken();
-            symbol = "SEMICN";
+            symbol = TokenType.SEMICN;
         } else if (in.charAt(pos) == ',') {
             catToken();
-            symbol = "COMMA";
+            symbol = TokenType.COMMA;
         } else if (in.charAt(pos) == '(') {
             catToken();
-            symbol = "LPARENT";
+            symbol = TokenType.LPARENT;
         } else if (in.charAt(pos) == ')') {
             catToken();
-            symbol = "RPARENT";
+            symbol = TokenType.RPARENT;
         } else if (in.charAt(pos) == '[') {
             catToken();
-            symbol = "LBRACK";
+            symbol = TokenType.LBRACK;
         } else if (in.charAt(pos) == ']') {
             catToken();
-            symbol = "RBRACK";
+            symbol = TokenType.RBRACK;
         } else if (in.charAt(pos) == '{') {
             catToken();
-            symbol = "LBRACE";
+            symbol = TokenType.LBRACE;
         } else if (in.charAt(pos) == '}') {
             catToken();
-            symbol = "RBRACE";
+            symbol = TokenType.RBRACE;
         }
         return true;
     }
 
-    public String getToken() {
-        return curToken.toString();
-    }
-
-    public String getSymbol() {
-        return symbol;
+    public ArrayList<Token> getTokens() {
+        ArrayList<Token> tokens = new ArrayList<>();
+        while (hasNext()) {
+            tokens.add(new Token(symbol, curToken.toString(), line));
+        }
+        return tokens;
     }
 
     private void catToken() {
@@ -169,19 +174,19 @@ public class Lexer {
     private void reserve() {
         String tmp = curToken.toString();
         switch (tmp) {
-            case "main" -> symbol = "MAINTK";
-            case "const" -> symbol = "CONSTTK";
-            case "int" -> symbol = "INTTK";
-            case "break" -> symbol = "BREAKTK";
-            case "continue" -> symbol = "CONTINUETK";
-            case "if" -> symbol = "IFTK";
-            case "else" -> symbol = "ELSETK";
-            case "for" -> symbol = "FORTK";
-            case "getint" -> symbol = "GETINTTK";
-            case "printf" -> symbol = "PRINTFTK";
-            case "return" -> symbol = "RETURNTK";
-            case "void" -> symbol = "VOIDTK";
-            default -> symbol = "IDENFR";
+            case "main" -> symbol = TokenType.MAINTK;
+            case "const" -> symbol = TokenType.CONSTTK;
+            case "int" -> symbol = TokenType.INTTK;
+            case "break" -> symbol = TokenType.BREAKTK;
+            case "continue" -> symbol = TokenType.CONTINUETK;
+            case "if" -> symbol = TokenType.IFTK;
+            case "else" -> symbol = TokenType.ELSETK;
+            case "for" -> symbol = TokenType.FORTK;
+            case "getint" -> symbol = TokenType.GETINTTK;
+            case "printf" -> symbol = TokenType.PRINTFTK;
+            case "return" -> symbol = TokenType.RETURNTK;
+            case "void" -> symbol = TokenType.VOIDTK;
+            default -> symbol = TokenType.IDENFR;
         }
     }
 

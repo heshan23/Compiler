@@ -1,381 +1,500 @@
-VOIDTK void
-IDENFR f1
-LPARENT (
-RPARENT )
-LBRACE {
-RETURNTK return
-SEMICN ;
-RBRACE }
+CONSTTK const
 INTTK int
-IDENFR f2
-LPARENT (
-INTTK int
-IDENFR a
-RPARENT )
-LBRACE {
-INTTK int
-IDENFR b
-SEMICN ;
-IDENFR b
+IDENFR ZERO
 ASSIGN =
-IDENFR a
+INTCON 0
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<ConstExp>
+<ConstInitVal>
+<ConstDef>
+COMMA ,
+IDENFR ONE
+ASSIGN =
+INTCON 1
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<ConstExp>
+<ConstInitVal>
+<ConstDef>
+SEMICN ;
+<ConstDecl>
+INTTK int
+IDENFR var2
+ASSIGN =
+INTCON 2
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<Exp>
+<InitVal>
+<VarDef>
+COMMA ,
+IDENFR var3
+ASSIGN =
+INTCON 3
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<Exp>
+<InitVal>
+<VarDef>
+SEMICN ;
+<VarDecl>
+VOIDTK void
+<FuncType>
+IDENFR fun
+LPARENT (
+RPARENT )
+LBRACE {
+INTTK int
+IDENFR i
+ASSIGN =
+INTCON 1
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<Exp>
+<InitVal>
+<VarDef>
+SEMICN ;
+<VarDecl>
+LBRACE {
+INTTK int
+IDENFR yuming
+ASSIGN =
+INTCON 1
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<Exp>
+<InitVal>
+<VarDef>
+SEMICN ;
+<VarDecl>
+FORTK for
+LPARENT (
+SEMICN ;
+IDENFR yuming
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+LSS <
+INTCON 1000
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<RelExp>
+<EqExp>
+<LAndExp>
+<LOrExp>
+<Cond>
+SEMICN ;
+RPARENT )
+LBRACE {
+IDENFR yuming
+<LVal>
+ASSIGN =
+IDENFR yuming
+<LVal>
+<PrimaryExp>
+<UnaryExp>
 MULT *
-INTCON 10
+INTCON 2
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<Exp>
 SEMICN ;
+<Stmt>
+RBRACE }
+<Block>
+<Stmt>
+<Stmt>
+PRINTFTK printf
+LPARENT (
+STRCON "\n%d"
+COMMA ,
+IDENFR yuming
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<Exp>
+RPARENT )
+SEMICN ;
+<Stmt>
+RBRACE }
+<Block>
+<Stmt>
 RETURNTK return
-IDENFR b
 SEMICN ;
+<Stmt>
 RBRACE }
-VOIDTK void
-IDENFR f3
-LPARENT (
-INTTK int
-IDENFR a
-COMMA ,
-INTTK int
-IDENFR b
-RPARENT )
-LBRACE {
-INTTK int
-IDENFR a
-SEMICN ;
-RBRACE }
-VOIDTK void
-IDENFR f4
-LPARENT (
-INTTK int
-IDENFR a
-COMMA ,
-INTTK int
-IDENFR b
-LBRACK [
-RBRACK ]
-COMMA ,
-INTTK int
-IDENFR c
-LBRACK [
-RBRACK ]
-LBRACK [
-INTCON 10
-RBRACK ]
-RPARENT )
-LBRACE {
-RBRACE }
+<Block>
+<FuncDef>
 INTTK int
 MAINTK main
 LPARENT (
 RPARENT )
 LBRACE {
-SEMICN ;
-SEMICN ;
-SEMICN ;
-SEMICN ;
-INTCON 1
-PLUS +
-INTCON 2
-SEMICN ;
 PRINTFTK printf
 LPARENT (
-STRCON "21373499\n"
+STRCON "21373457\n"
 RPARENT )
 SEMICN ;
-INTTK int
-IDENFR a
-COMMA ,
-IDENFR i
-SEMICN ;
-IDENFR a
-ASSIGN =
-GETINTTK getint
+<Stmt>
+IFTK if
 LPARENT (
-RPARENT )
-SEMICN ;
-FORTK for
-LPARENT (
-IDENFR i
-ASSIGN =
-INTCON 0
-SEMICN ;
-IDENFR i
-LSS <
-IDENFR a
-SEMICN ;
-IDENFR i
-ASSIGN =
-IDENFR i
+IDENFR ZERO
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
 PLUS +
-INTCON 1
+IDENFR var2
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<RelExp>
+EQL ==
+IDENFR var3
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+MINU -
+IDENFR ONE
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<RelExp>
+<EqExp>
+AND &&
+IDENFR ONE
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<RelExp>
+<EqExp>
+<LAndExp>
+<LOrExp>
+<Cond>
 RPARENT )
 LBRACE {
 IFTK if
 LPARENT (
-IDENFR i
-EQL ==
-INTCON 10
+IDENFR ZERO
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<RelExp>
+<EqExp>
+<LAndExp>
+OR ||
+NOT !
+<UnaryOp>
+IDENFR ZERO
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<RelExp>
+<EqExp>
+AND &&
+IDENFR ONE
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+PLUS +
+INTCON 1
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+PLUS +
+IDENFR var2
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+LSS <
+INTCON 0
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<RelExp>
+<EqExp>
+<LAndExp>
+<LOrExp>
+<Cond>
 RPARENT )
 LBRACE {
-BREAKTK break
+PRINTFTK printf
+LPARENT (
+STRCON "ERROR!\n"
+RPARENT )
 SEMICN ;
+<Stmt>
 RBRACE }
+<Block>
+<Stmt>
 ELSETK else
 LBRACE {
-CONTINUETK continue
-SEMICN ;
-RBRACE }
-RBRACE }
-FORTK for
-LPARENT (
-SEMICN ;
-IDENFR i
-LSS <
-INTCON 100
-SEMICN ;
-IDENFR i
-ASSIGN =
-IDENFR i
-PLUS +
-INTCON 1
-RPARENT )
-SEMICN ;
-FORTK for
-LPARENT (
-IDENFR i
-ASSIGN =
-INTCON 1
-SEMICN ;
-SEMICN ;
-IDENFR i
-ASSIGN =
-IDENFR i
-PLUS +
-INTCON 1
-RPARENT )
-LBRACE {
-IFTK if
-LPARENT (
-IDENFR i
-EQL ==
-INTCON 10
-RPARENT )
-LBRACE {
-BREAKTK break
-SEMICN ;
-RBRACE }
 PRINTFTK printf
 LPARENT (
-STRCON "%d\n"
-COMMA ,
-IDENFR i
+STRCON "And success!\n"
 RPARENT )
 SEMICN ;
+<Stmt>
 RBRACE }
-FORTK for
-LPARENT (
-IDENFR i
-ASSIGN =
-INTCON 0
-SEMICN ;
-IDENFR i
-LSS <
-INTCON 10
-SEMICN ;
-RPARENT )
-LBRACE {
-IDENFR i
-ASSIGN =
-IDENFR i
-PLUS +
-INTCON 1
-SEMICN ;
+<Block>
+<Stmt>
+<Stmt>
 RBRACE }
+<Block>
+<Stmt>
+<Stmt>
 IFTK if
 LPARENT (
-INTCON 1
-GRE >
-INTCON 2
-RPARENT )
-SEMICN ;
-IFTK if
-LPARENT (
-INTCON 1
-LSS <
-INTCON 2
-RPARENT )
-SEMICN ;
-IFTK if
-LPARENT (
-INTCON 1
-GEQ >=
-INTCON 2
-RPARENT )
-SEMICN ;
-IFTK if
-LPARENT (
-INTCON 1
-LEQ <=
-INTCON 2
-RPARENT )
-SEMICN ;
-IFTK if
-LPARENT (
-INTCON 1
+IDENFR var3
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<RelExp>
 NEQ !=
+INTCON 3
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<RelExp>
+<EqExp>
+<LAndExp>
+OR ||
+IDENFR var2
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+MINU -
+INTCON 22
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<RelExp>
+EQL ==
+MINU -
+<UnaryOp>
+INTCON 20
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<RelExp>
+<EqExp>
+<LAndExp>
+<LOrExp>
+<Cond>
+RPARENT )
+LBRACE {
+IFTK if
+LPARENT (
+IDENFR ONE
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+MOD %
 INTCON 2
-RPARENT )
-SEMICN ;
-FORTK for
-LPARENT (
-IDENFR i
-ASSIGN =
-INTCON 0
-SEMICN ;
-IDENFR i
-LSS <
-INTCON 10
-SEMICN ;
-IDENFR i
-ASSIGN =
-IDENFR i
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
 PLUS +
-INTCON 1
-RPARENT )
-SEMICN ;
-FORTK for
-LPARENT (
-SEMICN ;
-IDENFR i
-LSS <
-INTCON 10
-SEMICN ;
-IDENFR i
-ASSIGN =
-IDENFR i
+INTCON 3
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+MINU -
+INTCON 4
+<Number>
+<PrimaryExp>
+<UnaryExp>
+MULT *
+INTCON 2
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
 PLUS +
-INTCON 1
-RPARENT )
-SEMICN ;
-FORTK for
-LPARENT (
-IDENFR i
-ASSIGN =
-INTCON 0
-SEMICN ;
-SEMICN ;
-IDENFR i
-ASSIGN =
-IDENFR i
+IDENFR var3
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
 PLUS +
-INTCON 1
+IDENFR var2
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+LEQ <=
+INTCON 100
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<RelExp>
+<EqExp>
+<LAndExp>
+OR ||
+IDENFR ONE
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<RelExp>
+<EqExp>
+<LAndExp>
+<LOrExp>
+<Cond>
 RPARENT )
 LBRACE {
-IFTK if
+PRINTFTK printf
 LPARENT (
-IDENFR i
-EQL ==
-INTCON 1
+STRCON "Or pass!\n"
 RPARENT )
+SEMICN ;
+<Stmt>
+RBRACE }
+<Block>
+<Stmt>
+<Stmt>
+RBRACE }
+<Block>
+<Stmt>
+<Stmt>
+PRINTFTK printf
+LPARENT (
+STRCON "Test1 Success!"
+RPARENT )
+SEMICN ;
+<Stmt>
 LBRACE {
-BREAKTK break
-SEMICN ;
 RBRACE }
-RBRACE }
-FORTK for
+<Block>
+<Stmt>
+IDENFR fun
 LPARENT (
-IDENFR i
-ASSIGN =
-INTCON 0
-SEMICN ;
-IDENFR i
-LSS <
-INTCON 10
-SEMICN ;
 RPARENT )
-LBRACE {
-IDENFR i
-ASSIGN =
-IDENFR i
-PLUS +
-INTCON 1
+<UnaryExp>
+<MulExp>
+<AddExp>
+<Exp>
 SEMICN ;
-RBRACE }
-FORTK for
+<Stmt>
+IDENFR fun
 LPARENT (
-SEMICN ;
-SEMICN ;
-IDENFR i
-ASSIGN =
-IDENFR i
-PLUS +
-INTCON 1
 RPARENT )
-LBRACE {
-IFTK if
+<UnaryExp>
+<MulExp>
+<AddExp>
+<Exp>
+SEMICN ;
+<Stmt>
+IDENFR fun
 LPARENT (
-IDENFR i
-GEQ >=
-INTCON 0
 RPARENT )
-LBRACE {
-BREAKTK break
+<UnaryExp>
+<MulExp>
+<AddExp>
+<Exp>
 SEMICN ;
-RBRACE }
-RBRACE }
-FORTK for
+<Stmt>
+IDENFR fun
 LPARENT (
-IDENFR i
-ASSIGN =
-INTCON 0
-SEMICN ;
-SEMICN ;
 RPARENT )
-LBRACE {
-IFTK if
+<UnaryExp>
+<MulExp>
+<AddExp>
+<Exp>
+SEMICN ;
+<Stmt>
+IDENFR fun
 LPARENT (
-IDENFR i
-GEQ >=
-INTCON 0
 RPARENT )
-LBRACE {
-BREAKTK break
+<UnaryExp>
+<MulExp>
+<AddExp>
+<Exp>
 SEMICN ;
-RBRACE }
-RBRACE }
-FORTK for
+<Stmt>
+IDENFR fun
 LPARENT (
-SEMICN ;
-IDENFR i
-LSS <
-INTCON 0
-SEMICN ;
 RPARENT )
-LBRACE {
-IFTK if
-LPARENT (
-IDENFR i
-GEQ >=
-INTCON 0
-RPARENT )
-LBRACE {
-BREAKTK break
+<UnaryExp>
+<MulExp>
+<AddExp>
+<Exp>
 SEMICN ;
-RBRACE }
-RBRACE }
-FORTK for
-LPARENT (
-SEMICN ;
-SEMICN ;
-RPARENT )
-LBRACE {
-BREAKTK break
-SEMICN ;
-RBRACE }
-IFTK if
-LPARENT (
-IDENFR a
-EQL ==
-INTCON 10
-RPARENT )
+<Stmt>
 RETURNTK return
 INTCON 0
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<Exp>
 SEMICN ;
+<Stmt>
 RBRACE }
+<Block>
+<MainFuncDef>
+<CompUnit>
