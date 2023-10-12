@@ -18,6 +18,7 @@ public class RelExp {
     public void print() {
         addExps.get(0).print();
         for (int i = 1; i < addExps.size(); i++) {
+            OutputHandler.println("<RelExp>");
             OutputHandler.printToken(ops.get(i - 1));
             addExps.get(i).print();
         }

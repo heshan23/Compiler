@@ -18,6 +18,7 @@ public class AddExp {
     public void print() {
         mulExps.get(0).print();
         for (int i = 1; i < mulExps.size(); i++) {
+            OutputHandler.println("<AddExp>");
             OutputHandler.printToken(ops.get(i - 1));
             mulExps.get(i).print();
         }

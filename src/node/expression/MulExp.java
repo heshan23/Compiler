@@ -18,6 +18,7 @@ public class MulExp {
     public void print() {
         unaryExps.get(0).print();
         for (int i = 1; i < unaryExps.size(); i++) {
+            OutputHandler.println("<MulExp>");
             OutputHandler.printToken(ops.get(i - 1));
             unaryExps.get(i).print();
         }

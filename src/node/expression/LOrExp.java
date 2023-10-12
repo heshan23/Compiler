@@ -16,6 +16,7 @@ public class LOrExp {
     public void print() {
         lAndExps.get(0).print();
         for (int i = 1; i < lAndExps.size(); i++) {
+            OutputHandler.println("<LOrExp>");
             OutputHandler.printToken(TokenType.OR);
             lAndExps.get(i).print();
         }

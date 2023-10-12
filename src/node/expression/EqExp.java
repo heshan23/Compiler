@@ -18,6 +18,7 @@ public class EqExp {
     public void print() {
         relExps.get(0).print();
         for (int i = 1; i < relExps.size(); i++) {
+            OutputHandler.println("<EqExp>");
             OutputHandler.printToken(ops.get(i - 1));
             relExps.get(i).print();
         }

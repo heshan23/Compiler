@@ -95,6 +95,7 @@ IDENFR yuming
 <UnaryExp>
 <MulExp>
 <AddExp>
+<RelExp>
 LSS <
 INTCON 1000
 <Number>
@@ -117,6 +118,7 @@ IDENFR yuming
 <LVal>
 <PrimaryExp>
 <UnaryExp>
+<MulExp>
 MULT *
 INTCON 2
 <Number>
@@ -172,6 +174,7 @@ IDENFR ZERO
 <PrimaryExp>
 <UnaryExp>
 <MulExp>
+<AddExp>
 PLUS +
 IDENFR var2
 <LVal>
@@ -180,12 +183,14 @@ IDENFR var2
 <MulExp>
 <AddExp>
 <RelExp>
+<EqExp>
 EQL ==
 IDENFR var3
 <LVal>
 <PrimaryExp>
 <UnaryExp>
 <MulExp>
+<AddExp>
 MINU -
 IDENFR ONE
 <LVal>
@@ -195,6 +200,7 @@ IDENFR ONE
 <AddExp>
 <RelExp>
 <EqExp>
+<LAndExp>
 AND &&
 IDENFR ONE
 <LVal>
@@ -220,6 +226,7 @@ IDENFR ZERO
 <RelExp>
 <EqExp>
 <LAndExp>
+<LOrExp>
 OR ||
 NOT !
 <UnaryOp>
@@ -232,18 +239,21 @@ IDENFR ZERO
 <AddExp>
 <RelExp>
 <EqExp>
+<LAndExp>
 AND &&
 IDENFR ONE
 <LVal>
 <PrimaryExp>
 <UnaryExp>
 <MulExp>
+<AddExp>
 PLUS +
 INTCON 1
 <Number>
 <PrimaryExp>
 <UnaryExp>
 <MulExp>
+<AddExp>
 PLUS +
 IDENFR var2
 <LVal>
@@ -251,6 +261,7 @@ IDENFR var2
 <UnaryExp>
 <MulExp>
 <AddExp>
+<RelExp>
 LSS <
 INTCON 0
 <Number>
@@ -299,6 +310,7 @@ IDENFR var3
 <MulExp>
 <AddExp>
 <RelExp>
+<EqExp>
 NEQ !=
 INTCON 3
 <Number>
@@ -309,12 +321,14 @@ INTCON 3
 <RelExp>
 <EqExp>
 <LAndExp>
+<LOrExp>
 OR ||
 IDENFR var2
 <LVal>
 <PrimaryExp>
 <UnaryExp>
 <MulExp>
+<AddExp>
 MINU -
 INTCON 22
 <Number>
@@ -323,6 +337,7 @@ INTCON 22
 <MulExp>
 <AddExp>
 <RelExp>
+<EqExp>
 EQL ==
 MINU -
 <UnaryOp>
@@ -346,35 +361,41 @@ IDENFR ONE
 <LVal>
 <PrimaryExp>
 <UnaryExp>
+<MulExp>
 MOD %
 INTCON 2
 <Number>
 <PrimaryExp>
 <UnaryExp>
 <MulExp>
+<AddExp>
 PLUS +
 INTCON 3
 <Number>
 <PrimaryExp>
 <UnaryExp>
 <MulExp>
+<AddExp>
 MINU -
 INTCON 4
 <Number>
 <PrimaryExp>
 <UnaryExp>
+<MulExp>
 MULT *
 INTCON 2
 <Number>
 <PrimaryExp>
 <UnaryExp>
 <MulExp>
+<AddExp>
 PLUS +
 IDENFR var3
 <LVal>
 <PrimaryExp>
 <UnaryExp>
 <MulExp>
+<AddExp>
 PLUS +
 IDENFR var2
 <LVal>
@@ -382,6 +403,7 @@ IDENFR var2
 <UnaryExp>
 <MulExp>
 <AddExp>
+<RelExp>
 LEQ <=
 INTCON 100
 <Number>
@@ -392,6 +414,7 @@ INTCON 100
 <RelExp>
 <EqExp>
 <LAndExp>
+<LOrExp>
 OR ||
 IDENFR ONE
 <LVal>

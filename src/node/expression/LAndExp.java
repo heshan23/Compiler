@@ -16,6 +16,7 @@ public class LAndExp {
     public void print() {
         eqExps.get(0).print();
         for (int i = 1; i < eqExps.size(); i++) {
+            OutputHandler.println("<LAndExp>");
             OutputHandler.printToken(TokenType.AND);
             eqExps.get(i).print();
         }
