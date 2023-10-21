@@ -15,4 +15,8 @@ public class Cond {
         lOrExp.print();
         OutputHandler.println("<Cond>");
     }
+
+    public void checkError() {
+        lOrExp.checkError();
+    }
 }

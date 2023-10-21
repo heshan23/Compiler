@@ -1,6 +1,7 @@
 package node.stmt;
 
 import IO.OutputHandler;
+import error.ErrorHandler;
 import node.Cond;
 import node.ForStmt;
 import token.TokenType;
@@ -37,5 +38,21 @@ public class For implements Stmt {
         OutputHandler.printToken(TokenType.RPARENT);
         stmt.print();
         OutputHandler.println("<Stmt>");
+    }
+
+    @Override
+    public void checkError() {
+        if (forStmt1 != null) {
+            forStmt1.checkError();
+        }
+        if (cond != null) {
+            cond.checkError();
+        }
+        if (forStmt2 != null) {
+            forStmt2.checkError();
+        }
+        ErrorHandler.getInstance().addLoopLev();
+        stmt.checkError();
+        ErrorHandler.getInstance().minusLoopLev();
     }
 }

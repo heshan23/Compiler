@@ -1,4 +1,4 @@
-package node;
+package node.func;
 
 import IO.OutputHandler;
 import node.expression.Exp;
@@ -14,6 +14,10 @@ public class FuncRParams {
         this.exps = exps;
     }
 
+    public ArrayList<Exp> getExps() {
+        return exps;
+    }
+
     public void print() {
         exps.get(0).print();
         for (int i = 1; i < exps.size(); i++) {
@@ -21,5 +25,11 @@ public class FuncRParams {
             exps.get(i).print();
         }
         OutputHandler.println("<FuncRParams>");
+    }
+
+    public void checkError() {
+        for (Exp exp : exps) {
+            exp.checkError();
+        }
     }
 }

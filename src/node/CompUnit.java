@@ -1,6 +1,10 @@
 package node;
 
 import IO.OutputHandler;
+import error.ErrorHandler;
+import node.decl.Decl;
+import node.func.FuncDef;
+import node.func.MainFuncDef;
 
 import java.util.ArrayList;
 
@@ -25,5 +29,16 @@ public class CompUnit {
         }
         mainFuncDef.print();
         OutputHandler.println("<CompUnit>");
+    }
+
+    public void checkError() {
+        ErrorHandler.getInstance().addSymbolTable(null);
+        for (Decl decl : decls) {
+            decl.checkError();
+        }
+        for (FuncDef funcDef : funcDefs) {
+            funcDef.checkError();
+        }
+        mainFuncDef.checkError();
     }
 }

@@ -1,6 +1,7 @@
-package node;
+package node.decl;
 
 import IO.OutputHandler;
+import node.BType;
 import token.TokenType;
 
 import java.util.ArrayList;
@@ -24,5 +25,12 @@ public class VarDecl implements Decl {
         }
         OutputHandler.printToken(TokenType.SEMICN);
         OutputHandler.println("<VarDecl>");
+    }
+
+    @Override
+    public void checkError() {
+        for (VarDef varDef : varDefs) {
+            varDef.checkError();
+        }
     }
 }

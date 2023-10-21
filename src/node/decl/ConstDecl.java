@@ -1,7 +1,7 @@
-package node;
+package node.decl;
 
 import IO.OutputHandler;
-import token.Token;
+import node.BType;
 import token.TokenType;
 
 import java.util.ArrayList;
@@ -26,5 +26,11 @@ public class ConstDecl implements Decl {
         }
         OutputHandler.printToken(TokenType.SEMICN);
         OutputHandler.println("<ConstDecl>");
+    }
+
+    public void checkError() {
+        for (ConstDef constDef : constDefs) {
+            constDef.checkError();
+        }
     }
 }

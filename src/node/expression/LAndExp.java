@@ -22,4 +22,10 @@ public class LAndExp {
         }
         OutputHandler.println("<LAndExp>");
     }
+
+    public void checkError() {
+        for (EqExp eqExp : eqExps) {
+            eqExp.checkError();
+        }
+    }
 }

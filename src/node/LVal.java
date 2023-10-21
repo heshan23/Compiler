@@ -1,6 +1,9 @@
 package node;
 
 import IO.OutputHandler;
+import error.ErrorHandler;
+import error.ErrorNode;
+import error.ErrorType;
 import node.expression.Exp;
 import token.Token;
 import token.TokenType;
@@ -17,6 +20,14 @@ public class LVal {
         this.exps = exps;
     }
 
+    public Token getIdent() {
+        return this.Ident;
+    }
+
+    public ArrayList<Exp> getExps() {
+        return exps;
+    }
+
     public void print() {
         OutputHandler.printToken(Ident);
         for (Exp exp : exps) {
@@ -25,5 +36,15 @@ public class LVal {
             OutputHandler.printToken(TokenType.RBRACK);
         }
         OutputHandler.println("<LVal>");
+    }
+
+    public void checkError() {
+        if (!ErrorHandler.getInstance().defined(Ident.getToken())) {
+            ErrorHandler.getInstance().addError(
+                    new ErrorNode(ErrorType.c, Ident.getLine()));
+        }
+        for (Exp exp : exps) {
+            exp.checkError();
+        }
     }
 }

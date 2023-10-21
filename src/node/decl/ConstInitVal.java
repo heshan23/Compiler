@@ -1,4 +1,4 @@
-package node;
+package node.decl;
 
 import IO.OutputHandler;
 import node.expression.ConstExp;
@@ -35,5 +35,15 @@ public class ConstInitVal {
             OutputHandler.printToken(TokenType.RBRACE);
         }
         OutputHandler.println("<ConstInitVal>");
+    }
+
+    public void checkError() {
+        if (constExp != null) {
+            constExp.checkError();
+        } else {
+            for (ConstInitVal constInitVal : constInitVals) {
+                constInitVal.checkError();
+            }
+        }
     }
 }

@@ -14,4 +14,8 @@ public class ConstExp {
         addExp.print();
         OutputHandler.println("<ConstExp>");
     }
+
+    public void checkError() {
+        addExp.checkError();
+    }
 }

@@ -22,4 +22,10 @@ public class LOrExp {
         }
         OutputHandler.println("<LOrExp>");
     }
+
+    public void checkError() {
+        for (LAndExp lAndExp : lAndExps) {
+            lAndExp.checkError();
+        }
+    }
 }

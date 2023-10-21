@@ -24,4 +24,10 @@ public class EqExp {
         }
         OutputHandler.println("<EqExp>");
     }
+
+    public void checkError() {
+        for (RelExp relExp : relExps) {
+            relExp.checkError();
+        }
+    }
 }

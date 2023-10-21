@@ -1,5 +1,7 @@
 package IO;
 
+import config.Config;
+import error.ErrorNode;
 import token.*;
 
 import java.io.File;
@@ -8,14 +10,26 @@ import java.io.IOException;
 
 
 public class OutputHandler {
-
-    public static void println(String content) {
-        File output = new File("output.txt");
+    public static void println(String path, String content) {
+        File output = new File(path);
         try (FileWriter fileWriter = new FileWriter(output, true)) {
             fileWriter.write(content + "\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    //默认输出到outfile中
+    public static void println(String content) {
+        println(Config.outputPath, content);
+    }
+
+    public static void logError(String content) {
+        println(Config.errorPath, content);
+    }
+
+    public static void logError(ErrorNode error) {
+        logError(error.toString());
     }
 
     public static void printToken(Token token) {

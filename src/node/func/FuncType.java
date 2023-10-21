@@ -1,4 +1,4 @@
-package node;
+package node.func;
 
 import IO.OutputHandler;
 import token.Token;
@@ -9,6 +9,10 @@ public class FuncType {
 
     public FuncType(Token funcType) {
         this.funcType = funcType;
+    }
+
+    public Token getFuncType() {
+        return funcType;
     }
 
     public void print() {

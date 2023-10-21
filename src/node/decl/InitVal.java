@@ -1,4 +1,4 @@
-package node;
+package node.decl;
 
 import IO.OutputHandler;
 import node.expression.Exp;
@@ -34,5 +34,15 @@ public class InitVal {
             OutputHandler.printToken(TokenType.RBRACE);
         }
         OutputHandler.println("<InitVal>");
+    }
+
+    public void checkError() {
+        if (exp != null) {
+            exp.checkError();
+        } else {
+            for (InitVal initVal : initVals) {
+                initVal.checkError();
+            }
+        }
     }
 }

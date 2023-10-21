@@ -29,4 +29,13 @@ public class IfStmt implements Stmt {
         }
         OutputHandler.println("<Stmt>");
     }
+
+    @Override
+    public void checkError() {
+        cond.checkError();
+        stmt1.checkError();
+        if (stmt2 != null) {
+            stmt2.checkError();
+        }
+    }
 }

@@ -10,8 +10,16 @@ public class Exp {
         this.addExp = addExp;
     }
 
+    public AddExp getAddExp() {
+        return addExp;
+    }
+
     public void print() {
         addExp.print();
         OutputHandler.println("<Exp>");
+    }
+
+    public void checkError() {
+        addExp.checkError();
     }
 }

@@ -1,7 +1,12 @@
-package node;
+package node.decl;
 
 import IO.OutputHandler;
+import error.ErrorHandler;
+import error.ErrorNode;
+import error.ErrorType;
 import node.expression.ConstExp;
+import symbol.Type;
+import symbol.VarSymbol;
 import token.Token;
 import token.TokenType;
 
@@ -21,7 +26,6 @@ public class VarDef {
         this.initVal = initVal;
     }
 
-
     public void print() {
         OutputHandler.printToken(Ident);
         for (ConstExp constExp : constExps) {
@@ -36,4 +40,18 @@ public class VarDef {
         OutputHandler.println("<VarDef>");
     }
 
+    public void checkError() {
+        if (ErrorHandler.getInstance().isInCurTable(Ident.getToken())) {
+            ErrorHandler.getInstance().addError(new ErrorNode(ErrorType.b, Ident.getLine()));
+            return;
+        }
+        for (ConstExp constExp : constExps) {
+            constExp.checkError();
+        }
+        ErrorHandler.getInstance().addSymbol(
+                new VarSymbol(Ident.getToken(), Type.INT, false, constExps.size()));
+        if (initVal != null) {
+            initVal.checkError();
+        }
+    }
 }

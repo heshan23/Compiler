@@ -1,6 +1,7 @@
-package node;
+package node.func;
 
 import IO.OutputHandler;
+import node.func.FuncFParam;
 import token.TokenType;
 
 import java.util.ArrayList;
@@ -13,6 +14,10 @@ public class FuncFParams {
         this.funcFParams = funcFParams;
     }
 
+    public ArrayList<FuncFParam> getFuncFParams() {
+        return funcFParams;
+    }
+
     public void print() {
         funcFParams.get(0).print();
         for (int i = 1; i < funcFParams.size(); i++) {
@@ -20,5 +25,11 @@ public class FuncFParams {
             funcFParams.get(i).print();
         }
         OutputHandler.println("<FuncFParams>");
+    }
+
+    public void checkError() {
+        for (FuncFParam funcFParam : funcFParams) {
+            funcFParam.checkError();
+        }
     }
 }

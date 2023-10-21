@@ -24,6 +24,14 @@ public class PrimaryExp {
         this.number = number;
     }
 
+    public Exp getExp() {
+        return exp;
+    }
+
+    public LVal getlVal() {
+        return lVal;
+    }
+
     public void print() {
         if (exp != null) {
             OutputHandler.printToken(TokenType.LPARENT);
@@ -35,5 +43,13 @@ public class PrimaryExp {
             number.print();
         }
         OutputHandler.println("<PrimaryExp>");
+    }
+
+    public void checkError() {
+        if (exp != null) {
+            exp.checkError();
+        } else if (lVal != null) {
+            lVal.checkError();
+        }
     }
 }

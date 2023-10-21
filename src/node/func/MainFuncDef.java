@@ -1,7 +1,13 @@
-package node;
+package node.func;
 
 import IO.OutputHandler;
+import error.ErrorHandler;
+import node.Block;
+import symbol.FuncSymbol;
+import symbol.Type;
 import token.TokenType;
+
+import java.util.ArrayList;
 
 public class MainFuncDef {
     //MainFuncDef → 'int' 'main' '(' ')' Block
@@ -18,5 +24,13 @@ public class MainFuncDef {
         OutputHandler.printToken(TokenType.RPARENT);
         block.print();
         OutputHandler.println("<MainFuncDef>");
+    }
+
+    public void checkError() {
+        ErrorHandler.getInstance().addSymbol(
+                new FuncSymbol("main", Type.INT, new ArrayList<>()));
+        ErrorHandler.getInstance().addSymbolTable(Type.INT);
+        block.checkError();
+        ErrorHandler.getInstance().removeSymbolTable();
     }
 }

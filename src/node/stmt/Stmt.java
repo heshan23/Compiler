@@ -11,4 +11,6 @@ public interface Stmt {
     //| LVal '=' 'getint''('')'';'
     //| 'printf''('FormatString{','Exp}')'';' // 1.有Exp 2.无Exp
     void print();
+
+    void checkError();
 }

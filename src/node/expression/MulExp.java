@@ -15,6 +15,10 @@ public class MulExp {
         this.ops = ops;
     }
 
+    public ArrayList<UnaryExp> getUnaryExps() {
+        return unaryExps;
+    }
+
     public void print() {
         unaryExps.get(0).print();
         for (int i = 1; i < unaryExps.size(); i++) {
@@ -23,5 +27,11 @@ public class MulExp {
             unaryExps.get(i).print();
         }
         OutputHandler.println("<MulExp>");
+    }
+
+    public void checkError() {
+        for (UnaryExp unaryExp : unaryExps) {
+            unaryExp.checkError();
+        }
     }
 }

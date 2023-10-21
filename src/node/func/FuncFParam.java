@@ -1,7 +1,14 @@
-package node;
+package node.func;
 
 import IO.OutputHandler;
+import error.ErrorHandler;
+import error.ErrorNode;
+import error.ErrorType;
+import node.BType;
 import node.expression.ConstExp;
+import symbol.Symbol;
+import symbol.Type;
+import symbol.VarSymbol;
 import token.Token;
 import token.TokenType;
 
@@ -22,6 +29,17 @@ public class FuncFParam {
         this.isArray = isArray;
     }
 
+    public Token getIdent() {
+        return Ident;
+    }
+
+    public int getDimension() {
+        if (!isArray) {
+            return 0;
+        }
+        return constExps.size() + 1;
+    }
+
     public void print() {
         bType.print();
         OutputHandler.printToken(Ident);
@@ -35,5 +53,14 @@ public class FuncFParam {
             }
         }
         OutputHandler.println("<FuncFParam>");
+    }
+
+    public void checkError() {
+        if (ErrorHandler.getInstance().isInCurTable(Ident.getToken())) {
+            ErrorHandler.getInstance().addError(new ErrorNode(ErrorType.b, Ident.getLine()));
+            return;
+        }
+        ErrorHandler.getInstance().addSymbol(
+                new VarSymbol(Ident.getToken(), Type.INT, false, getDimension()));
     }
 }

@@ -1,7 +1,13 @@
+import config.Config;
+import error.ErrorNode;
+import error.ErrorHandler;
+import error.ErrorType;
 import node.*;
 import node.Number;
+import node.decl.*;
 import node.expression.*;
 import node.ForStmt;
+import node.func.*;
 import node.stmt.*;
 import token.Token;
 import token.TokenType;
@@ -51,7 +57,7 @@ public class Parser {
         }
         while (!match(TokenType.SEMICN)) {
             if (!match(TokenType.COMMA)) {
-                error();
+                error(TokenType.COMMA);
             }
             ConstDef constDef = constDef();
             constDefs.add(constDef);
@@ -61,14 +67,14 @@ public class Parser {
 
     private BType bType() {
         if (!match(TokenType.INTTK)) {
-            error();
+            error(TokenType.INTTK);
         }
         return new BType(tokens.get(index - 1));
     }
 
     private ConstDef constDef() {
         if (!match(TokenType.IDENFR)) {
-            error();
+            error(TokenType.IDENFR);
         }
         Token Ident = tokens.get(index - 1);
         ArrayList<ConstExp> constExps = new ArrayList<>();
@@ -76,11 +82,11 @@ public class Parser {
             ConstExp constExp = constExp();
             constExps.add(constExp);
             if (!match(TokenType.RBRACK)) {
-                error();
+                error(TokenType.RBRACK);
             }
         }
         if (!match(TokenType.ASSIGN)) {
-            error();
+            error(TokenType.ASSIGN);
         }
         ConstInitVal constInitVal = constInitVal();
         return new ConstDef(Ident, constExps, constInitVal);
@@ -103,7 +109,7 @@ public class Parser {
             }
             while (!match(TokenType.RBRACE)) {
                 if (!match(TokenType.COMMA)) {
-                    error();
+                    error(TokenType.COMMA);
                 }
                 ConstInitVal constInitVal = constInitVal();
                 constInitVals.add(constInitVal);
@@ -121,7 +127,7 @@ public class Parser {
         varDefs.add(varDef());
         while (!match(TokenType.SEMICN)) {
             if (!match(TokenType.COMMA)) {
-                error();
+                error(TokenType.COMMA);
             }
             varDefs.add(varDef());
         }
@@ -133,12 +139,12 @@ public class Parser {
         ArrayList<ConstExp> constExps = new ArrayList<>();
         InitVal InitVal = null;
         if (!match(TokenType.IDENFR)) {
-            error();
+            error(TokenType.IDENFR);
         }
         while (match(TokenType.LBRACK)) {
             constExps.add(constExp());
             if (!match(TokenType.RBRACK)) {
-                error();
+                error(TokenType.RBRACK);
             }
         }
         if (match(TokenType.ASSIGN)) {
@@ -162,7 +168,7 @@ public class Parser {
                 initVals.add(initVal());
             }
             if (!match(TokenType.RBRACE)) {
-                error();
+                error(TokenType.RBRACE);
             }
             return new InitVal(initVals);
         } else {
@@ -175,15 +181,15 @@ public class Parser {
         Token Ident = tokens.get(index);
         FuncFParams funcFParams = null;
         if (!match(TokenType.IDENFR)) {
-            error();
+            error(TokenType.IDENFR);
         }
         if (!match(TokenType.LPARENT)) {
-            error();
+            error(TokenType.LPARENT);
         }
         if (!match(TokenType.RPARENT)) {
             funcFParams = funcFParams();
             if (!match(TokenType.RPARENT)) {
-                error();
+                error(TokenType.RPARENT);
             }
         }
         Block block = block();
@@ -193,7 +199,7 @@ public class Parser {
     private FuncType funcType() {
         Token funcType = tokens.get(index);
         if (!match(TokenType.VOIDTK) && !match(TokenType.INTTK)) {
-            error();
+            error(TokenType.INTTK);//error(TokenType.VOIDTK)
         }
         return new FuncType(funcType);
     }
@@ -217,18 +223,18 @@ public class Parser {
         boolean isArray = false;
         ArrayList<ConstExp> constExps = new ArrayList<>();
         if (!match(TokenType.IDENFR)) {
-            error();
+            error(TokenType.IDENFR);
         }
         if (match(TokenType.LBRACK)) {
             isArray = true;
             if (!match(TokenType.RBRACK)) {
-                error();
+                error(TokenType.RBRACK);
             }
             while (match(TokenType.LBRACK)) {
                 ConstExp constExp = constExp();
                 constExps.add(constExp);
                 if (!match(TokenType.RBRACK)) {
-                    error();
+                    error(TokenType.RBRACK);
                 }
             }
         }
@@ -238,13 +244,14 @@ public class Parser {
     private Block block() {
         ArrayList<BlockItem> blockItems = new ArrayList<>();
         if (!match(TokenType.LBRACE)) {
-            error();
+            error(TokenType.LBRACE);
         }
         while (!match(TokenType.RBRACE)) {
             BlockItem blockItem = blockItem();
             blockItems.add(blockItem);
         }
-        return new Block(blockItems);
+        int endLine = tokens.get(index - 1).getLine();
+        return new Block(blockItems, endLine);
     }
 
     private BlockItem blockItem() {
@@ -266,16 +273,18 @@ public class Parser {
             return stmtFor();
         }
         if (match(TokenType.BREAKTK)) {
+            Token breakToken = tokens.get(index - 1);
             if (!match(TokenType.SEMICN)) {
-                error();
+                error(TokenType.SEMICN);
             }
-            return new BreakStmt();
+            return new BreakStmt(breakToken);
         }
         if (match(TokenType.CONTINUETK)) {
+            Token continueToken = tokens.get(index - 1);
             if (!match(TokenType.SEMICN)) {
-                error();
+                error(TokenType.SEMICN);
             }
-            return new ContinueStmt();
+            return new ContinueStmt(continueToken);
         }
         if (match(TokenType.RETURNTK)) {
             return returnStmt();
@@ -292,19 +301,19 @@ public class Parser {
             if (match(TokenType.ASSIGN)) {
                 if (match(TokenType.GETINTTK)) {
                     if (!match(TokenType.LPARENT)) {
-                        error();
+                        error(TokenType.LPARENT);
                     }
                     if (!match(TokenType.RPARENT)) {
-                        error();
+                        error(TokenType.RPARENT);
                     }
                     if (!match(TokenType.SEMICN)) {
-                        error();
+                        error(TokenType.SEMICN);
                     }
                     return new AssignGetintStmt(lVal);
                 }
                 Exp exp = exp();
                 if (!match(TokenType.SEMICN)) {
-                    error();
+                    error(TokenType.SEMICN);
                 }
                 return new AssignExpStmt(lVal, exp);
             }
@@ -314,7 +323,7 @@ public class Parser {
         if (!match(TokenType.SEMICN)) {
             exp = exp();
             if (!match(TokenType.SEMICN)) {
-                error();
+                error(TokenType.SEMICN);
             }
         }
         return new ExpStmt(exp);
@@ -331,11 +340,11 @@ public class Parser {
         Stmt stmt1;
         Stmt stmt2 = null;
         if (!match(TokenType.LPARENT)) {
-            error();
+            error(TokenType.LPARENT);
         }
         cond = cond();
         if (!match(TokenType.RPARENT)) {
-            error();
+            error(TokenType.RPARENT);
         }
         stmt1 = stmt();
         if (match(TokenType.ELSETK)) {
@@ -351,24 +360,24 @@ public class Parser {
         ForStmt forStmt2 = null;
         Stmt stmt;
         if (!match(TokenType.LPARENT)) {
-            error();
+            error(TokenType.LPARENT);
         }
         if (!match(TokenType.SEMICN)) {
             forStmt1 = forStmt();
             if (!match(TokenType.SEMICN)) {
-                error();
+                error(TokenType.SEMICN);
             }
         }
         if (!match(TokenType.SEMICN)) {
             cond = cond();
             if (!match(TokenType.SEMICN)) {
-                error();
+                error(TokenType.SEMICN);
             }
         }
         if (!match(TokenType.RPARENT)) {
             forStmt2 = forStmt();
             if (!match(TokenType.RPARENT)) {
-                error();
+                error(TokenType.RPARENT);
             }
         }
         stmt = stmt();
@@ -378,55 +387,57 @@ public class Parser {
     private ForStmt forStmt() {
         LVal lVal = lVal();
         if (!match(TokenType.ASSIGN)) {
-            error();
+            error(TokenType.ASSIGN);
         }
         return new ForStmt(lVal, exp());
     }
 
     private ReturnStmt returnStmt() {
         //return 已经被匹配过了
+        Token returnToken = tokens.get(index - 1);
         Exp exp = null;
         if (!match(TokenType.SEMICN)) {
             exp = exp();
             if (!match(TokenType.SEMICN)) {
-                error();
+                error(TokenType.SEMICN);
             }
         }
-        return new ReturnStmt(exp);
+        return new ReturnStmt(returnToken, exp);
     }
 
     private PrintfStmt printfStmt() {
         //print已经被匹配过了
+        Token printfToken = tokens.get(index - 1);
         if (!match(TokenType.LPARENT)) {
-            error();
+            error(TokenType.LPARENT);
         }
         Token token = tokens.get(index);
         ArrayList<Exp> exps = new ArrayList<>();
         if (!match(TokenType.STRCON)) {
-            error();
+            error(TokenType.STRCON);
         }
         while (!match(TokenType.RPARENT)) {
             if (!match(TokenType.COMMA)) {
-                error();
+                error(TokenType.COMMA);
             }
             exps.add(exp());
         }
         if (!match(TokenType.SEMICN)) {
-            error();
+            error(TokenType.SEMICN);
         }
-        return new PrintfStmt(token, exps);
+        return new PrintfStmt(printfToken, token, exps);
     }
 
     private LVal lVal() {
         Token token = tokens.get(index);
         ArrayList<Exp> exps = new ArrayList<>();
         if (!match(TokenType.IDENFR)) {
-            error();
+            error(TokenType.IDENFR);
         }
         while (match(TokenType.LBRACK)) {
             exps.add(exp());
             if (!match(TokenType.RBRACK)) {
-                error();
+                error(TokenType.RBRACK);
             }
         }
         return new LVal(token, exps);
@@ -511,7 +522,7 @@ public class Parser {
             if (!match(TokenType.RPARENT)) {
                 funcRParams = funcRParams();
                 if (!match(TokenType.RPARENT)) {
-                    error();
+                    error(TokenType.RPARENT);
                 }
             }
             return new UnaryExp(ident, funcRParams);
@@ -529,7 +540,7 @@ public class Parser {
         if (match(TokenType.LPARENT)) {
             Exp exp = exp();
             if (!match(TokenType.RPARENT)) {
-                error();
+                error(TokenType.RPARENT);
             }
             return new PrimaryExp(exp);
         }
@@ -551,16 +562,16 @@ public class Parser {
 
     private MainFuncDef mainFuncDef() {
         if (!match(TokenType.INTTK)) {
-            error();
+            error(TokenType.INTTK);
         }
         if (!match(TokenType.MAINTK)) {
-            error();
+            error(TokenType.MAINTK);
         }
         if (!match(TokenType.LPARENT)) {
-            error();
+            error(TokenType.LPARENT);
         }
         if (!match(TokenType.RPARENT)) {
-            error();
+            error(TokenType.RPARENT);
         }
         Block block = block();
         return new MainFuncDef(block);
@@ -575,8 +586,19 @@ public class Parser {
         }
     }
 
-    private void error() {
-        System.out.println("error at index:" + index);
-        System.exit(1);
+    private void error(TokenType tokenType) {
+        if (!Config.checkError) {
+            System.out.println("parser error at index:" + index);
+            System.out.println("this token is:" + tokens.get(index));
+            System.exit(1);
+        }
+        int preLine = tokens.get(index - 1).getLine();
+        ErrorHandler errorHandler = ErrorHandler.getInstance();
+        switch (tokenType) {
+            case SEMICN -> errorHandler.addError(new ErrorNode(ErrorType.i, preLine));
+            case RPARENT -> errorHandler.addError(new ErrorNode(ErrorType.j, preLine));
+            case RBRACK -> errorHandler.addError(new ErrorNode(ErrorType.k, preLine));
+            default -> throw new RuntimeException("error at index:" + index);//unexpected error
+        }
     }
 }

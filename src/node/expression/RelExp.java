@@ -25,4 +25,10 @@ public class RelExp {
         OutputHandler.println("<RelExp>");
     }
 
+    public void checkError() {
+        for (AddExp addExp : addExps) {
+            addExp.checkError();
+        }
+    }
+
 }

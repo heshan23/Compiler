@@ -20,4 +20,11 @@ public class ExpStmt implements Stmt {
         OutputHandler.printToken(TokenType.SEMICN);
         OutputHandler.println("<Stmt>");
     }
+
+    @Override
+    public void checkError() {
+        if (exp != null) {
+            exp.checkError();
+        }
+    }
 }
