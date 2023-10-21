@@ -47,8 +47,10 @@ public class FuncDef {
             return;
         }
         ArrayList<FuncParam> funcParams = new ArrayList<>();
-        for (FuncFParam funcFParam : funcFParams.getFuncFParams()) {
-            funcParams.add(new FuncParam(funcFParam.getIdent().getToken(), Type.INT, funcFParam.getDimension()));
+        if (funcFParams != null) {
+            for (FuncFParam funcFParam : funcFParams.getFuncFParams()) {
+                funcParams.add(new FuncParam(funcFParam.getIdent().getToken(), Type.INT, funcFParam.getDimension()));
+            }
         }
         ErrorHandler.getInstance().addSymbol(new FuncSymbol(Ident.getToken(), type, funcParams));
         ErrorHandler.getInstance().addSymbolTable(type);

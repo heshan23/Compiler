@@ -186,11 +186,11 @@ public class Parser {
         if (!match(TokenType.LPARENT)) {
             error(TokenType.LPARENT);
         }
-        if (!match(TokenType.RPARENT)) {
+        if (tokens.get(index).getSymbol() == TokenType.INTTK) {
             funcFParams = funcFParams();
-            if (!match(TokenType.RPARENT)) {
-                error(TokenType.RPARENT);
-            }
+        }
+        if (!match(TokenType.RPARENT)) {
+            error(TokenType.RPARENT);
         }
         Block block = block();
         return new FuncDef(funcType, Ident, funcFParams, block);
@@ -513,17 +513,28 @@ public class Parser {
         return new RelExp(addExps, ops);
     }
 
+    private boolean isExp() {
+        switch (tokens.get(index).getSymbol()) {
+            case PLUS, MINU, NOT, IDENFR, LPARENT, INTCON -> {
+                return true;
+            }
+            default -> {
+                return false;
+            }
+        }
+    }
+
     private UnaryExp unaryExp() {
-        if (Objects.equals(tokens.get(index).getSymbol(), TokenType.IDENFR)
-                && Objects.equals(tokens.get(index + 1).getSymbol(), TokenType.LPARENT)) {
+        if (Objects.equals(tokens.get(index).getSymbol(), TokenType.IDENFR) &&
+                Objects.equals(tokens.get(index + 1).getSymbol(), TokenType.LPARENT)) {
             Token ident = tokens.get(index);
             FuncRParams funcRParams = null;
             index += 2;
-            if (!match(TokenType.RPARENT)) {
+            if (isExp()) {
                 funcRParams = funcRParams();
-                if (!match(TokenType.RPARENT)) {
-                    error(TokenType.RPARENT);
-                }
+            }
+            if (!match(TokenType.RPARENT)) {
+                error(TokenType.RPARENT);
             }
             return new UnaryExp(ident, funcRParams);
         }
@@ -588,9 +599,8 @@ public class Parser {
 
     private void error(TokenType tokenType) {
         if (!Config.checkError) {
-            System.out.println("parser error at index:" + index);
-            System.out.println("this token is:" + tokens.get(index));
-            System.exit(1);
+            throw new RuntimeException("error at index:" + index
+                    + "\nthis token is:" + tokens.get(index));//unexpected error
         }
         int preLine = tokens.get(index - 1).getLine();
         ErrorHandler errorHandler = ErrorHandler.getInstance();
@@ -598,7 +608,8 @@ public class Parser {
             case SEMICN -> errorHandler.addError(new ErrorNode(ErrorType.i, preLine));
             case RPARENT -> errorHandler.addError(new ErrorNode(ErrorType.j, preLine));
             case RBRACK -> errorHandler.addError(new ErrorNode(ErrorType.k, preLine));
-            default -> throw new RuntimeException("error at index:" + index);//unexpected error
+            default -> throw new RuntimeException("error at index:" + index
+                    + "\nthis token is:" + tokens.get(index));//unexpected error
         }
     }
 }

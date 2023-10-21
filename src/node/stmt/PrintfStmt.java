@@ -17,6 +17,7 @@ public class PrintfStmt implements Stmt {
     private ArrayList<Exp> exps;
 
     public PrintfStmt(Token printfToken, Token formatString, ArrayList<Exp> exps) {
+        this.printfToken = printfToken;
         this.formatString = formatString;
         this.exps = exps;
     }
@@ -43,12 +44,12 @@ public class PrintfStmt implements Stmt {
         }
         if (numOfFormatChar(formatString.getToken()) != exps.size()) {
             ErrorHandler.getInstance().addError(
-                    new ErrorNode(ErrorType.i, printfToken.getLine()));
+                    new ErrorNode(ErrorType.l, printfToken.getLine()));
         }
     }
 
     private boolean isValidFormat(String format) {
-        for (int i = 0; i < format.length(); i++) {
+        for (int i = 1; i < format.length() - 1; i++) {//formatString 首尾都是'\"'
             char c = format.charAt(i);
             if (c == '%') {
                 if (format.charAt(++i) != 'd') {

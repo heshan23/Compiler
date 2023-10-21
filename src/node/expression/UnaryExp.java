@@ -71,14 +71,19 @@ public class UnaryExp {
         if (primaryExp != null) {
             primaryExp.checkError();
         } else if (Ident != null) {
-            funcRParams.checkError();
+            if (funcRParams != null) {
+                funcRParams.checkError();
+            }
             if (!ErrorHandler.getInstance().defined(Ident.getToken())) {
                 ErrorHandler.getInstance().addError(new ErrorNode(ErrorType.c, Ident.getLine()));
+                return;
             }
             //没有定义int a; a()这样的错误;暂时忽略;
             FuncSymbol symbol = (FuncSymbol) ErrorHandler.getInstance().getSymbol(Ident.getToken());
             //参数个数检查
-            checkParamNum(symbol);
+            if (checkParamNum(symbol)) {
+                return;
+            }
             //参数类型匹配检查
             checkParamType(symbol);
         } else {
@@ -86,12 +91,17 @@ public class UnaryExp {
         }
     }
 
-    private void checkParamNum(FuncSymbol symbol) {
-        if (funcRParams == null && !symbol.getFuncParams().isEmpty()) {
-            ErrorHandler.getInstance().addError(new ErrorNode(ErrorType.e, Ident.getLine()));
+    private boolean checkParamNum(FuncSymbol symbol) {
+        if (funcRParams == null) {
+            if (!symbol.getFuncParams().isEmpty()) {
+                ErrorHandler.getInstance().addError(new ErrorNode(ErrorType.e, Ident.getLine()));
+                return true;
+            }
         } else if (symbol.getFuncParams().size() != funcRParams.getExps().size()) {
             ErrorHandler.getInstance().addError(new ErrorNode(ErrorType.d, Ident.getLine()));
+            return true;
         }
+        return false;
     }
 
     private void checkParamType(FuncSymbol funcSymbol) {
