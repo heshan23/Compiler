@@ -1,12 +1,12 @@
-package symbol;
+package error.symbol;
 
 import java.util.HashMap;
 
-public class SymbolTable {
-    private HashMap<String, Symbol> symbolMap;
+public class SymbolTables {
+    private final HashMap<String, Symbol> symbolMap;
     private Type type;
 
-    public SymbolTable(Type type) {
+    public SymbolTables(Type type) {
         this.symbolMap = new HashMap<>();
         this.type = type;
     }

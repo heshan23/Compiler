@@ -1,4 +1,4 @@
-package symbol;
+package error.symbol;
 
 public class FuncParam {
     private String name;

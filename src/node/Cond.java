@@ -11,6 +11,10 @@ public class Cond {
         this.lOrExp = lOrExp;
     }
 
+    public LOrExp getlOrExp() {
+        return lOrExp;
+    }
+
     public void print() {
         lOrExp.print();
         OutputHandler.println("<Cond>");

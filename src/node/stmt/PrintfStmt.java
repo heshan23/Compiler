@@ -12,14 +12,22 @@ import java.util.ArrayList;
 
 public class PrintfStmt implements Stmt {
     //| 'printf''('FormatString{','Exp}')'';' // 1.有Exp 2.无Exp
-    private Token printfToken;
-    private Token formatString;
-    private ArrayList<Exp> exps;
+    private final Token printfToken;
+    private final Token formatString;
+    private final ArrayList<Exp> exps;
 
     public PrintfStmt(Token printfToken, Token formatString, ArrayList<Exp> exps) {
         this.printfToken = printfToken;
         this.formatString = formatString;
         this.exps = exps;
+    }
+
+    public Token getFormatString() {
+        return formatString;
+    }
+
+    public ArrayList<Exp> getExps() {
+        return exps;
     }
 
     @Override

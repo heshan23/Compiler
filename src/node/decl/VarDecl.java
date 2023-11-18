@@ -16,6 +16,10 @@ public class VarDecl implements Decl {
         this.varDefs = varDefs;
     }
 
+    public ArrayList<VarDef> getVarDefs() {
+        return varDefs;
+    }
+
     public void print() {
         bType.print();
         varDefs.get(0).print();

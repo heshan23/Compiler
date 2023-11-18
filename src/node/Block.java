@@ -44,4 +44,8 @@ public class Block {
             }
         }
     }
+
+    public ArrayList<BlockItem> getBlockItems() {
+        return blockItems;
+    }
 }

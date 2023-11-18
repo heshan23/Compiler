@@ -18,6 +18,14 @@ public class ForStmt {
         this.exp = exp;
     }
 
+    public Exp getExp() {
+        return exp;
+    }
+
+    public LVal getlVal() {
+        return lVal;
+    }
+
     public void print() {
         lVal.print();
         OutputHandler.printToken(TokenType.ASSIGN);

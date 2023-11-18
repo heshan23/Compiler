@@ -18,6 +18,14 @@ public class AssignExpStmt implements Stmt {
         this.exp = exp;
     }
 
+    public LVal getlVal() {
+        return lVal;
+    }
+
+    public Exp getExp() {
+        return exp;
+    }
+
     @Override
     public void print() {
         lVal.print();

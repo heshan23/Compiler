@@ -1,4 +1,4 @@
-package symbol;
+package error.symbol;
 
 import java.util.ArrayList;
 

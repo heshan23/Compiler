@@ -13,6 +13,10 @@ public class LAndExp {
         this.eqExps = eqExps;
     }
 
+    public ArrayList<EqExp> getEqExps() {
+        return eqExps;
+    }
+
     public void print() {
         eqExps.get(0).print();
         for (int i = 1; i < eqExps.size(); i++) {

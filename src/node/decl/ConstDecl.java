@@ -16,6 +16,10 @@ public class ConstDecl implements Decl {
         this.constDefs = constDefs;
     }
 
+    public ArrayList<ConstDef> getConstDefs() {
+        return constDefs;
+    }
+
     public void print() {
         OutputHandler.printToken(TokenType.CONSTTK);
         bType.print();

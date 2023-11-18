@@ -6,9 +6,8 @@ import error.ErrorNode;
 import error.ErrorType;
 import node.BType;
 import node.expression.ConstExp;
-import symbol.Symbol;
-import symbol.Type;
-import symbol.VarSymbol;
+import error.symbol.Type;
+import error.symbol.VarSymbol;
 import token.Token;
 import token.TokenType;
 
@@ -31,6 +30,10 @@ public class FuncFParam {
 
     public Token getIdent() {
         return Ident;
+    }
+
+    public boolean isArray() {
+        return isArray;
     }
 
     public int getDimension() {

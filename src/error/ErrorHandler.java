@@ -3,7 +3,7 @@ package error;
 import IO.OutputHandler;
 import node.LVal;
 import node.expression.*;
-import symbol.*;
+import error.symbol.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,7 +16,7 @@ public class ErrorHandler {
     }
 
     private final ArrayList<ErrorNode> errorNodes = new ArrayList<>();
-    private final ArrayList<SymbolTable> symbolTables = new ArrayList<>();
+    private final ArrayList<SymbolTables> symbolTables = new ArrayList<>();
     private int loopLev = 0;
 
     public void addError(ErrorNode errorNode) {
@@ -31,7 +31,7 @@ public class ErrorHandler {
     }
 
     public void addSymbolTable(Type type) {
-        symbolTables.add(new SymbolTable(type));
+        symbolTables.add(new SymbolTables(type));
     }
 
     public void removeSymbolTable() {

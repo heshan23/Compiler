@@ -20,6 +20,10 @@ public class ConstInitVal {
         this.constInitVals = constInitVals;
     }
 
+    public ConstExp getConstExp() {
+        return constExp;
+    }
+
     public void print() {
         if (constExp != null) {
             constExp.print();

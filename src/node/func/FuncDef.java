@@ -5,9 +5,9 @@ import error.ErrorHandler;
 import error.ErrorNode;
 import error.ErrorType;
 import node.Block;
-import symbol.FuncParam;
-import symbol.FuncSymbol;
-import symbol.Type;
+import error.symbol.FuncParam;
+import error.symbol.FuncSymbol;
+import error.symbol.Type;
 import token.Token;
 import token.TokenType;
 
@@ -25,6 +25,22 @@ public class FuncDef {
         this.Ident = Ident;
         this.funcFParams = funcFParams;
         this.block = block;
+    }
+
+    public Block getBlock() {
+        return block;
+    }
+
+    public Token getIdent() {
+        return Ident;
+    }
+
+    public FuncFParams getFuncFParams() {
+        return funcFParams;
+    }
+
+    public FuncType getFuncType() {
+        return funcType;
     }
 
     public void print() {

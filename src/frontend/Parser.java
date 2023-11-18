@@ -1,7 +1,10 @@
+package frontend;
+
 import config.Config;
 import error.ErrorNode;
 import error.ErrorHandler;
 import error.ErrorType;
+import frontend.Lexer;
 import node.*;
 import node.Number;
 import node.decl.*;

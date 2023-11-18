@@ -15,6 +15,10 @@ public class AssignGetintStmt implements Stmt {
         this.lVal = lVal;
     }
 
+    public LVal getlVal() {
+        return lVal;
+    }
+
     @Override
     public void print() {
         lVal.print();

@@ -16,6 +16,18 @@ public class IfStmt implements Stmt {
         this.stmt2 = stmt2;
     }
 
+    public Cond getCond() {
+        return cond;
+    }
+
+    public Stmt getStmt1() {
+        return stmt1;
+    }
+
+    public Stmt getStmt2() {
+        return stmt2;
+    }
+
     @Override
     public void print() {
         OutputHandler.printToken(TokenType.IFTK);

@@ -1,4 +1,4 @@
-package symbol;
+package error.symbol;
 
 public class Symbol {
     private String name;

@@ -5,8 +5,8 @@ import error.ErrorHandler;
 import error.ErrorNode;
 import error.ErrorType;
 import node.expression.ConstExp;
-import symbol.Type;
-import symbol.VarSymbol;
+import error.symbol.Type;
+import error.symbol.VarSymbol;
 import token.Token;
 import token.TokenType;
 
@@ -49,5 +49,17 @@ public class ConstDef {
         ErrorHandler.getInstance().addSymbol(
                 new VarSymbol(Ident.getToken(), Type.INT, true, constExps.size()));
         constInitVal.checkError();
+    }
+
+    public Token getIdent() {
+        return Ident;
+    }
+
+    public ArrayList<ConstExp> getConstExps() {
+        return constExps;
+    }
+
+    public ConstInitVal getConstInitVal() {
+        return constInitVal;
     }
 }

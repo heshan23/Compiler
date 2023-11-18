@@ -32,6 +32,14 @@ public class OutputHandler {
         logError(error.toString());
     }
 
+    public static void genLLVM(String inst) {
+        println(Config.llvmPath, inst);
+    }
+
+    public static void genMips(String inst) {
+        println(Config.mipsPath, inst);
+    }
+
     public static void printToken(Token token) {
         println(token.toString());
     }

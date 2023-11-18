@@ -15,6 +15,14 @@ public class EqExp {
         this.ops = ops;
     }
 
+    public ArrayList<RelExp> getRelExps() {
+        return relExps;
+    }
+
+    public ArrayList<Token> getOps() {
+        return ops;
+    }
+
     public void print() {
         relExps.get(0).print();
         for (int i = 1; i < relExps.size(); i++) {

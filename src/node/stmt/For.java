@@ -8,16 +8,32 @@ import token.TokenType;
 
 public class For implements Stmt {
     //'for' '(' [ForStmt] ';' [Cond] ';' [ForStmt] ')' Stmt
-    private ForStmt forStmt1;
-    private Cond cond;
-    private ForStmt forStmt2;
-    private Stmt stmt;
+    private final ForStmt forStmt1;
+    private final Cond cond;
+    private final ForStmt forStmt2;
+    private final Stmt stmt;
 
     public For(ForStmt forStmt1, Cond cond, ForStmt forStmt2, Stmt stmt) {
         this.forStmt1 = forStmt1;
         this.cond = cond;
         this.forStmt2 = forStmt2;
         this.stmt = stmt;
+    }
+
+    public Cond getCond() {
+        return cond;
+    }
+
+    public ForStmt getForStmt1() {
+        return forStmt1;
+    }
+
+    public ForStmt getForStmt2() {
+        return forStmt2;
+    }
+
+    public Stmt getStmt() {
+        return stmt;
     }
 
     @Override

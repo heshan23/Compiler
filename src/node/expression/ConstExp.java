@@ -10,6 +10,10 @@ public class ConstExp {
         this.addExp = addExp;
     }
 
+    public AddExp getAddExp() {
+        return addExp;
+    }
+
     public void print() {
         addExp.print();
         OutputHandler.println("<ConstExp>");

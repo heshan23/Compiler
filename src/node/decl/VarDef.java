@@ -5,8 +5,8 @@ import error.ErrorHandler;
 import error.ErrorNode;
 import error.ErrorType;
 import node.expression.ConstExp;
-import symbol.Type;
-import symbol.VarSymbol;
+import error.symbol.Type;
+import error.symbol.VarSymbol;
 import token.Token;
 import token.TokenType;
 
@@ -24,6 +24,14 @@ public class VarDef {
         this.Ident = Ident;
         this.constExps = constExps;
         this.initVal = initVal;
+    }
+
+    public Token getIdent() {
+        return Ident;
+    }
+
+    public InitVal getInitVal() {
+        return initVal;
     }
 
     public void print() {

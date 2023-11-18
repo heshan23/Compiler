@@ -15,4 +15,8 @@ public class UnaryOp {
         OutputHandler.printToken(op);
         OutputHandler.println("<UnaryOp>");
     }
+
+    public Token getOp() {
+        return op;
+    }
 }

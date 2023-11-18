@@ -32,6 +32,10 @@ public class PrimaryExp {
         return lVal;
     }
 
+    public Number getNumber() {
+        return number;
+    }
+
     public void print() {
         if (exp != null) {
             OutputHandler.printToken(TokenType.LPARENT);

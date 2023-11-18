@@ -1,5 +1,9 @@
+import IR.IRModule;
+import IR.Visitor;
 import config.Config;
 import error.ErrorHandler;
+import frontend.Lexer;
+import frontend.Parser;
 import node.CompUnit;
 
 import java.io.IOException;
@@ -19,6 +23,11 @@ public class Compiler {
         if (Config.checkError) {
             compUnit.checkError();
             ErrorHandler.getInstance().logErrors();
+        }
+        if (Config.genLLVM) {
+            Visitor visitor = new Visitor();
+            visitor.visitCompUnit(compUnit);
+            IRModule.getInstance().genLLVm();
         }
     }
 }

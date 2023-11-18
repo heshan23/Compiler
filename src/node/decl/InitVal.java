@@ -19,6 +19,10 @@ public class InitVal {
         this.initVals = initVals;
     }
 
+    public Exp getExp() {
+        return exp;
+    }
+
     public void print() {
         if (exp != null) {
             exp.print();

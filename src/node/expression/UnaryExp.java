@@ -5,11 +5,9 @@ import error.ErrorHandler;
 import error.ErrorNode;
 import error.ErrorType;
 import node.func.FuncRParams;
-import symbol.*;
+import error.symbol.*;
 import token.Token;
 import token.TokenType;
-
-import java.util.ArrayList;
 
 public class UnaryExp {
     //PrimaryExp | Ident '(' [FuncRParams] ')'
@@ -48,6 +46,10 @@ public class UnaryExp {
 
     public UnaryExp getUnaryExp() {
         return unaryExp;
+    }
+
+    public UnaryOp getUnaryOp() {
+        return unaryOp;
     }
 
     public void print() {

@@ -13,6 +13,10 @@ public class LOrExp {
         this.lAndExps = lAndExps;
     }
 
+    public ArrayList<LAndExp> getlAndExps() {
+        return lAndExps;
+    }
+
     public void print() {
         lAndExps.get(0).print();
         for (int i = 1; i < lAndExps.size(); i++) {

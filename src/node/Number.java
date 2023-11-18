@@ -15,4 +15,8 @@ public class Number {
         OutputHandler.printToken(intConst);
         OutputHandler.println("<Number>");
     }
+
+    public int getVal() {
+        return Integer.parseInt(intConst.getToken());
+    }
 }

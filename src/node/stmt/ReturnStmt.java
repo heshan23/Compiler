@@ -39,4 +39,8 @@ public class ReturnStmt implements Stmt {
             exp.checkError();
         }
     }
+
+    public Exp getExp() {
+        return exp;
+    }
 }

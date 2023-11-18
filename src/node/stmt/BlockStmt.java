@@ -13,6 +13,10 @@ public class BlockStmt implements Stmt {
         this.block = block;
     }
 
+    public Block getBlock() {
+        return block;
+    }
+
     @Override
     public void print() {
         block.print();

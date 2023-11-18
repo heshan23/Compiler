@@ -15,6 +15,14 @@ public class RelExp {
         this.ops = ops;
     }
 
+    public ArrayList<AddExp> getAddExps() {
+        return addExps;
+    }
+
+    public ArrayList<Token> getOps() {
+        return ops;
+    }
+
     public void print() {
         addExps.get(0).print();
         for (int i = 1; i < addExps.size(); i++) {

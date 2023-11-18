@@ -19,6 +19,10 @@ public class AddExp {
         return mulExps;
     }
 
+    public ArrayList<Token> getOps() {
+        return ops;
+    }
+
     public void print() {
         mulExps.get(0).print();
         for (int i = 1; i < mulExps.size(); i++) {

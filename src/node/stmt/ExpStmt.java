@@ -12,6 +12,10 @@ public class ExpStmt implements Stmt {
         this.exp = exp;
     }
 
+    public Exp getExp() {
+        return exp;
+    }
+
     @Override
     public void print() {
         if (exp != null) {

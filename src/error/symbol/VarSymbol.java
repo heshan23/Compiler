@@ -1,4 +1,4 @@
-package symbol;
+package error.symbol;
 
 public class VarSymbol extends Symbol {
     private boolean isCon;

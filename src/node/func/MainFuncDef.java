@@ -3,8 +3,8 @@ package node.func;
 import IO.OutputHandler;
 import error.ErrorHandler;
 import node.Block;
-import symbol.FuncSymbol;
-import symbol.Type;
+import error.symbol.FuncSymbol;
+import error.symbol.Type;
 import token.TokenType;
 
 import java.util.ArrayList;
@@ -32,5 +32,9 @@ public class MainFuncDef {
         ErrorHandler.getInstance().addSymbolTable(Type.INT);
         block.checkError();
         ErrorHandler.getInstance().removeSymbolTable();
+    }
+
+    public Block getBlock() {
+        return block;
     }
 }
