@@ -1,5 +1,6 @@
 import IR.IRModule;
 import IR.Visitor;
+import backend.MIPSGenerator;
 import config.Config;
 import error.ErrorHandler;
 import frontend.Lexer;
@@ -28,6 +29,9 @@ public class Compiler {
             Visitor visitor = new Visitor();
             visitor.visitCompUnit(compUnit);
             IRModule.getInstance().genLLVm();
+            if (Config.genMIPS) {
+                MIPSGenerator.getInstance().genMIPS();
+            }
         }
     }
 }

@@ -23,6 +23,14 @@ public class IRModule {
         this.globalVars.add(globalVar);
     }
 
+    public ArrayList<GlobalVar> getGlobalVars() {
+        return globalVars;
+    }
+
+    public ArrayList<Function> getFunctions() {
+        return functions;
+    }
+
     public void genLLVm() {
         String libFunc = """
                 declare i32 @getint()

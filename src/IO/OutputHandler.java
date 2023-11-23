@@ -36,7 +36,7 @@ public class OutputHandler {
         println(Config.llvmPath, inst);
     }
 
-    public static void genMips(String inst) {
+    public static void genMIPS(String inst) {
         println(Config.mipsPath, inst);
     }
 

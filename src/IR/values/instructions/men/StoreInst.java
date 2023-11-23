@@ -1,7 +1,8 @@
-package IR.values.instructions;
+package IR.values.instructions.men;
 
 import IR.values.BasicBlock;
 import IR.values.Value;
+import IR.values.instructions.Operator;
 import IR.values.instructions.men.MemInst;
 
 public class StoreInst extends MemInst {
@@ -16,6 +17,14 @@ public class StoreInst extends MemInst {
         this.val = val;
         addOperands(val);
         addOperands(ptr);
+    }
+
+    public Value getVal() {
+        return val;
+    }
+
+    public Value getPtr() {
+        return ptr;
     }
 
     @Override

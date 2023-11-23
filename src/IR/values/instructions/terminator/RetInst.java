@@ -17,11 +17,6 @@ public class RetInst extends TerminatorInst {
         addOperands(value);
     }
 
-    public RetInst(Type type, Operator op, BasicBlock basicBlock) {
-        super(type, op, basicBlock);
-    }
-
-
     @Override
     public String toString() {
         if (getType() == VoidType.voidType) {

@@ -13,7 +13,7 @@ public class LoadInst extends MemInst {
         addOperands(pointer);
     }
 
-    private Value pointer() {
+    public Value pointer() {
         return getOperands().get(0);
     }
 

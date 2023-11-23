@@ -6,6 +6,7 @@ import IR.values.*;
 import IR.values.instructions.*;
 import IR.values.instructions.men.AllocInst;
 import IR.values.instructions.men.LoadInst;
+import IR.values.instructions.men.StoreInst;
 import IR.values.instructions.terminator.BrInst;
 import IR.values.instructions.terminator.RetInst;
 

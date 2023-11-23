@@ -20,6 +20,10 @@ public class BasicBlock extends Value {
         super("", null);
     }
 
+    public ArrayList<Instruction> getInstructions() {
+        return instructions;
+    }
+
     public void refill(Function function) {
         setName(String.valueOf(valNumber++));
         setType(new LabelType());

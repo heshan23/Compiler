@@ -20,6 +20,10 @@ public class CallInst extends Instruction {
         }
     }
 
+    public Function getFunction() {
+        return (Function) getOperands().get(0);
+    }
+
     private String getCallee() {
         StringBuilder funcName = new StringBuilder("@" + getOperands().get(0).getName() + "(");
         if (getOperands().size() > 1) {

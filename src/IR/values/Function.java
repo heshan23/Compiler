@@ -26,6 +26,14 @@ public class Function extends Value {
 
     }
 
+    public ArrayList<Argument> getArguments() {
+        return arguments;
+    }
+
+    public ArrayList<BasicBlock> getBasicBlocks() {
+        return basicBlocks;
+    }
+
     public boolean isLibrary() {
         return isLibrary;
     }
@@ -39,6 +47,7 @@ public class Function extends Value {
             this.arguments.add(new Argument(type));
         }
     }
+
 
     public Argument getKArg(int k) {
         return arguments.get(k);

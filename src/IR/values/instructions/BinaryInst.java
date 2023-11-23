@@ -14,11 +14,11 @@ public class BinaryInst extends Instruction {
         setName("%" + valNumber++);
     }
 
-    private Value lVal() {
+    public Value lVal() {
         return getOperands().get(0);
     }
 
-    private Value rVal() {
+    public Value rVal() {
         return getOperands().get(1);
     }
 
