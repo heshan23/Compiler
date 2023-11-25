@@ -6,6 +6,7 @@ import IR.values.*;
 import IR.values.instructions.BinaryInst;
 import IR.values.instructions.ConstArray;
 import IR.values.instructions.Operator;
+import IR.values.instructions.men.LoadInst;
 import node.*;
 import node.Number;
 import node.decl.*;
@@ -321,6 +322,9 @@ public class Visitor {
     }
 
     private void visitForStmt(ForStmt forStmt) {
+        if (forStmt == null) {
+            return;
+        }
         doLValAssignExp(forStmt.getlVal(), forStmt.getExp());
     }
 
@@ -460,9 +464,9 @@ public class Visitor {
             thenBlock.refill(curFunction);//暂定采用回填方式解决
             curBlock = thenBlock;
         }
-        visitLAndExp(lOrExp.getlAndExps().get(len - 1));
         curTrueBlock = trueBlock;
         curFalseBlock = falseBlock;
+        visitLAndExp(lOrExp.getlAndExps().get(len - 1));
     }
 
     private void visitLAndExp(LAndExp lAndExp) {
@@ -484,7 +488,11 @@ public class Visitor {
     private void visitEqExp(EqExp eqExp) {
         visitRelExp(eqExp.getRelExps().get(0));
         if (eqExp.getRelExps().size() == 1) {
-            if (((BinaryInst) tmpValue).isNumber()) {
+            if (tmpValue instanceof BinaryInst binaryInst) {
+                if (binaryInst.isNumber()) {
+                    tmpValue = buildFactory.binaryInst(curBlock, Operator.Ne, tmpValue, ConstInt.ZERO);
+                }
+            } else if (tmpValue instanceof LoadInst) {
                 tmpValue = buildFactory.binaryInst(curBlock, Operator.Ne, tmpValue, ConstInt.ZERO);
             }
             return;
