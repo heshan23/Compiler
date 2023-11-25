@@ -527,6 +527,9 @@ public class Visitor {
 
 
     private void visitExp(Exp exp) {
+        if (exp == null) {
+            return;
+        }
         visitAddExp(exp.getAddExp());
     }
 

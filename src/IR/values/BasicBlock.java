@@ -45,5 +45,8 @@ public class BasicBlock extends Value {
         for (Instruction instruction : instructions) {
             OutputHandler.genLLVM("\t" + instruction);
         }
+        if (!isTerminated) {
+            OutputHandler.genLLVM("\tret void");
+        }
     }
 }

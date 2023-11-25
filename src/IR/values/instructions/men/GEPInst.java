@@ -36,6 +36,10 @@ public class GEPInst extends MemInst {
         return getOperands().get(0);
     }
 
+    private String getIndex(Value value) {
+        return value.getType().toString() + ' ' + value.getName();
+    }
+
     @Override
     public String toString() {
         StringBuilder res = new StringBuilder(getName());
@@ -43,9 +47,9 @@ public class GEPInst extends MemInst {
         res.append(target).append(", ");
         res.append(getPointer().getType()).append(" ");
         res.append(getPointer().getName()).append(", ");
-        res.append(indices.get(0).toString());
+        res.append(getIndex(indices.get(0)));
         for (int i = 1; i < indices.size(); i++) {
-            res.append(", ").append(indices.get(i));
+            res.append(", ").append(getIndex(indices.get(i)));
         }
         return res.toString();
     }
