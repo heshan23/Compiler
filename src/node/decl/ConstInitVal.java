@@ -24,6 +24,10 @@ public class ConstInitVal {
         return constExp;
     }
 
+    public ArrayList<ConstInitVal> getConstInitVals() {
+        return constInitVals;
+    }
+
     public void print() {
         if (constExp != null) {
             constExp.print();

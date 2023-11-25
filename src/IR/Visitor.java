@@ -4,6 +4,7 @@ import IR.SymbolTable.SymbolTable;
 import IR.types.*;
 import IR.values.*;
 import IR.values.instructions.BinaryInst;
+import IR.values.instructions.ConstArray;
 import IR.values.instructions.Operator;
 import node.*;
 import node.Number;
@@ -17,6 +18,7 @@ import token.Token;
 import token.TokenType;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 
 public class Visitor {
@@ -92,18 +94,52 @@ public class Visitor {
 
     private void visitConstDef(ConstDef constDef) {
         String name = constDef.getIdent().getToken();
-        visitConstInitVal(constDef.getConstInitVal());
-        if (isGlobal) {
-            Value value = buildFactory.buildConstInt(immediate);
-            tmpValue = buildFactory.globalVar(name, tmpType, true, value);
+        if (!constDef.getConstExps().isEmpty()) {//isArray
+            Stack<Integer> dims = new Stack<>();
+            boolean keep = isGlobal;
+            isGlobal = true;
+            for (ConstExp constExp : constDef.getConstExps()) {
+                visitConstExp(constExp);
+                dims.push(immediate);
+            }
+            isGlobal = keep;
+            tmpType = new ArrayType(IntegerType.i32, dims.pop());
+            while (!dims.empty()) {
+                tmpType = new ArrayType(tmpType, dims.pop());
+            }
+            visitConstInitVal(constDef.getConstInitVal());
+            if (isGlobal) {
+                tmpValue = buildFactory.buildGlobalArray(name, tmpType, true, tmpValue);
+            } else {
+                tmpValue = buildFactory.buildArray(tmpType, tmpValue, curBlock);
+            }
         } else {
-            tmpValue = buildFactory.buildVar(tmpType, tmpValue, curBlock);
+            visitConstInitVal(constDef.getConstInitVal());
+            if (isGlobal) {
+                Value value = buildFactory.buildConstInt(immediate);
+                tmpValue = buildFactory.globalVar(name, tmpType, true, value);
+            } else {
+                tmpValue = buildFactory.buildVar(tmpType, tmpValue, curBlock);
+            }
         }
         symbolTables.addSymbol(name, tmpValue);
     }
 
     private void visitConstInitVal(ConstInitVal constInitVal) {
-        visitConstExp(constInitVal.getConstExp());
+        if (constInitVal.getConstExp() != null) {
+            visitConstExp(constInitVal.getConstExp());
+            if (isGlobal) {
+                tmpValue = new ConstInt(immediate);
+            }
+        } else {
+            ConstArray res = new ConstArray();
+            for (ConstInitVal constInitVal1 : constInitVal.getConstInitVals()) {
+                visitConstInitVal(constInitVal1);
+                res.addVal(tmpValue);
+            }
+            res.resetType();
+            tmpValue = res;
+        }
     }
 
     private void visitConstExp(ConstExp constExp) {
@@ -120,26 +156,63 @@ public class Visitor {
 
     private void visitVarDef(VarDef varDef) {
         String name = varDef.getIdent().getToken();
-        if (varDef.getInitVal() != null) {
-            visitInitVal(varDef.getInitVal());
-        } else {
-            immediate = 0;
-        }
-        if (isGlobal) {
-            Value value = buildFactory.buildConstInt(immediate);
-            tmpValue = buildFactory.globalVar(name, tmpType, false, value);
-        } else {
+        if (varDef.getConstExps().isEmpty()) {
             if (varDef.getInitVal() != null) {
-                tmpValue = buildFactory.buildVar(tmpType, tmpValue, curBlock);
+                visitInitVal(varDef.getInitVal());
             } else {
-                tmpValue = buildFactory.buildVar(tmpType, null, curBlock);
+                immediate = 0;
+            }
+            if (isGlobal) {
+                Value value = buildFactory.buildConstInt(immediate);
+                tmpValue = buildFactory.globalVar(name, tmpType, false, value);
+            } else {
+                if (varDef.getInitVal() != null) {
+                    tmpValue = buildFactory.buildVar(tmpType, tmpValue, curBlock);
+                } else {
+                    tmpValue = buildFactory.buildVar(tmpType, null, curBlock);
+                }
+            }
+        } else {
+            Stack<Integer> dims = new Stack<>();
+            boolean keep = isGlobal;
+            isGlobal = true;
+            for (ConstExp constExp : varDef.getConstExps()) {
+                visitConstExp(constExp);
+                dims.push(immediate);
+            }
+            isGlobal = keep;
+            tmpType = new ArrayType(IntegerType.i32, dims.pop());
+            while (!dims.empty()) {
+                tmpType = new ArrayType(tmpType, dims.pop());
+            }
+            tmpValue = null;
+            if (varDef.getInitVal() != null) {
+                visitInitVal(varDef.getInitVal());
+            }
+            if (isGlobal) {
+                tmpValue = buildFactory.buildGlobalArray(name, tmpType, false, tmpValue);
+            } else {
+                tmpValue = buildFactory.buildArray(tmpType, tmpValue, curBlock);
             }
         }
         symbolTables.addSymbol(name, tmpValue);
     }
 
     private void visitInitVal(InitVal initVal) {
-        visitExp(initVal.getExp());
+        if (initVal.getExp() != null) {
+            visitExp(initVal.getExp());
+        } else {
+            ConstArray res = new ConstArray();
+            for (InitVal initVal1 : initVal.getInitVals()) {
+                visitInitVal(initVal1);
+                if (isGlobal && initVal1.getExp() != null) {
+                    tmpValue = new ConstInt(immediate);
+                }
+                res.addVal(tmpValue);
+            }
+            res.resetType();
+            tmpValue = res;
+        }
     }
 
     private void visitFuncDef(FuncDef funcDef) {
@@ -173,11 +246,18 @@ public class Visitor {
     }
 
     private Type getFuncFParamType(FuncFParam funcFParam) {
-        Type type = null;
         if (!funcFParam.isArray()) {
-            type = IntegerType.i32;
+            return IntegerType.i32;
+        } else {
+            isGlobal = true;
+            Type type = IntegerType.i32;
+            for (ConstExp constExp : funcFParam.getConstExps()) {
+                visitConstExp(constExp);
+                type = new ArrayType(type, immediate);
+            }
+            isGlobal = false;
+            return new PointerType(type);
         }
-        return type;
     }
 
     private void visitFuncFParam(FuncFParam funcFParam, Argument arg) {
@@ -530,11 +610,41 @@ public class Visitor {
     }
 
     private void visitLVal(LVal lVal) {
+        //isGlobal有待商榷没有太仔细考虑
         String name = lVal.getIdent().getToken();
+        Value pointer = symbolTables.getValue(name);
+        ArrayList<Value> indices = new ArrayList<>();
         if (lVal.getExps().isEmpty()) {
-            Value pointer = symbolTables.getValue(name);
             if (isGlobal) {
                 immediate = ((ConstInt) ((GlobalVar) pointer).getValue()).getVal();
+            } else {
+                if (!(((PointerType) pointer.getType()).getTargetType() instanceof ArrayType)) {
+                    tmpValue = buildFactory.loadInst(curBlock, pointer);
+                } else {
+                    indices.add(ConstInt.ZERO);
+                    indices.add(ConstInt.ZERO);
+                    tmpValue = buildFactory.gepInst(pointer, indices, curBlock);
+                }
+            }
+        } else {
+            //a[i][j] or a[i]
+            Type type = pointer.getType();
+            Type targetType = ((PointerType) type).getTargetType();
+            if (targetType instanceof PointerType) {
+                pointer = buildFactory.loadInst(curBlock, pointer);
+            } else {
+                indices.add(ConstInt.ZERO);
+            }
+            for (Exp exp : lVal.getExps()) {
+                visitExp(exp);
+                indices.add(tmpValue);
+            }
+            pointer = buildFactory.gepInst(pointer, indices, curBlock);
+            if (((PointerType) pointer.getType()).getTargetType() instanceof ArrayType) {
+                ArrayList<Value> indices1 = new ArrayList<>();
+                indices1.add(ConstInt.ZERO);
+                indices1.add(ConstInt.ZERO);
+                tmpValue = buildFactory.gepInst(pointer, indices1, curBlock);
             } else {
                 tmpValue = buildFactory.loadInst(curBlock, pointer);
             }

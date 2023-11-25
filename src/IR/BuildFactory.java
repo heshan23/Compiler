@@ -5,6 +5,7 @@ import IR.types.Type;
 import IR.values.*;
 import IR.values.instructions.*;
 import IR.values.instructions.men.AllocInst;
+import IR.values.instructions.men.GEPInst;
 import IR.values.instructions.men.LoadInst;
 import IR.values.instructions.men.StoreInst;
 import IR.values.instructions.terminator.BrInst;
@@ -12,6 +13,7 @@ import IR.values.instructions.terminator.RetInst;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Stack;
 
 
 public class BuildFactory {
@@ -100,4 +102,37 @@ public class BuildFactory {
         return new ConvInst(Operator.Zext, basicBlock);
     }
 
+    public GlobalVar buildGlobalArray(String name, Type type, boolean isCon, Value initValue) {
+        ConstArray constArray = (ConstArray) initValue;
+        if (initValue == null) {
+            constArray = new ConstArray(type);
+        }
+        return new GlobalVar(name, type, isCon, constArray);
+    }
+
+    public AllocInst buildArray(Type type, Value initVal, BasicBlock basicBlock) {
+        AllocInst res = new AllocInst(type, basicBlock);
+        if (initVal != null) {
+            Stack<Value> indices = new Stack<>();
+            setArrayInitVal(res, initVal, basicBlock, indices, 0);
+        }
+        return res;
+    }
+
+    private void setArrayInitVal(Value pointer, Value initVal, BasicBlock basicBlock, Stack<Value> indices, int off) {
+        indices.push(new ConstInt(off));
+        if (initVal instanceof ConstInt) {
+            storeInst(basicBlock, initVal, gepInst(pointer, new ArrayList<>(indices), basicBlock));
+        } else if (initVal instanceof ConstArray constArray) {
+            int tmp = 0;
+            for (Value value : constArray.getValues()) {
+                setArrayInitVal(pointer, value, basicBlock, indices, tmp++);
+            }
+        }
+        indices.pop();
+    }
+
+    public GEPInst gepInst(Value base, ArrayList<Value> indices, BasicBlock basicBlock) {
+        return new GEPInst(base, indices, basicBlock);
+    }
 }

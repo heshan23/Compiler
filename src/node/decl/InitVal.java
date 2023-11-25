@@ -23,6 +23,10 @@ public class InitVal {
         return exp;
     }
 
+    public ArrayList<InitVal> getInitVals() {
+        return initVals;
+    }
+
     public void print() {
         if (exp != null) {
             exp.print();

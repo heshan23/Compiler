@@ -36,6 +36,10 @@ public class FuncFParam {
         return isArray;
     }
 
+    public ArrayList<ConstExp> getConstExps() {
+        return constExps;
+    }
+
     public int getDimension() {
         if (!isArray) {
             return 0;

@@ -15,7 +15,6 @@ import java.util.ArrayList;
 public class VarDef {
     //VarDef → Ident { '[' ConstExp ']' } // 包含普通变量、一维数组、二维数组定义
     //  | Ident { '[' ConstExp ']' } '=' InitVal
-    //因为InitVal等价于ConstInitVal所以这里采用ConstInitVal
     private Token Ident;
     private ArrayList<ConstExp> constExps;
     private InitVal initVal;
@@ -32,6 +31,10 @@ public class VarDef {
 
     public InitVal getInitVal() {
         return initVal;
+    }
+
+    public ArrayList<ConstExp> getConstExps() {
+        return constExps;
     }
 
     public void print() {

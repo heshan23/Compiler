@@ -10,7 +10,7 @@ public enum Operator {
     //函数调用
     Call,
     //内存操作
-    Alloc, Store, Load,
+    Alloc, Store, Load, GEP,
     //跳转指令
     br, ret
 }

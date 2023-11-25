@@ -193,7 +193,7 @@ public class MIPSGenerator {
             }
             OutputHandler.genMIPS(String.format("addi $sp, $sp, %d", spOff - 4 * rec));
             jal(function.getName());
-            OutputHandler.genMIPS("nop");
+            //OutputHandler.genMIPS("nop");关闭延迟槽
             OutputHandler.genMIPS(String.format("addi $sp, $sp, %d", -spOff + 4 * rec));
             lw("$ra", "$sp", spOff);
             if (!(callInst.getType() == VoidType.voidType)) {
