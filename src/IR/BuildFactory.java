@@ -133,12 +133,14 @@ public class BuildFactory {
 
     private void setArrayInitVal(Value pointer, Value initVal, BasicBlock basicBlock, Stack<Value> indices, int off) {
         indices.push(new ConstInt(off));
-        if (initVal instanceof ConstInt) {
-            storeInst(basicBlock, initVal, gepInst(pointer, new ArrayList<>(indices), basicBlock));
-        } else if (initVal instanceof ConstArray constArray) {
-            int tmp = 0;
-            for (Value value : constArray.getValues()) {
-                setArrayInitVal(pointer, value, basicBlock, indices, tmp++);
+        if (initVal instanceof Assignable) {
+            if (initVal instanceof ConstArray constArray) {
+                int tmp = 0;
+                for (Value value : constArray.getValues()) {
+                    setArrayInitVal(pointer, value, basicBlock, indices, tmp++);
+                }
+            } else {
+                storeInst(basicBlock, initVal, gepInst(pointer, new ArrayList<>(indices), basicBlock));
             }
         }
         indices.pop();

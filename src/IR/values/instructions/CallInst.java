@@ -2,13 +2,14 @@ package IR.values.instructions;
 
 import IR.types.FuncType;
 import IR.types.VoidType;
+import IR.values.Assignable;
 import IR.values.BasicBlock;
 import IR.values.Function;
 import IR.values.Value;
 
 import java.util.ArrayList;
 
-public class CallInst extends Instruction {
+public class CallInst extends Instruction implements Assignable {
     public CallInst(BasicBlock basicBlock, Function function, ArrayList<Value> args) {
         super(((FuncType) function.getType()).getRetType(), Operator.Call, basicBlock);
         if (getType() != VoidType.voidType) {

@@ -1,11 +1,12 @@
 package IR.values.instructions;
 
 import IR.types.IntegerType;
+import IR.values.Assignable;
 import IR.values.BasicBlock;
 import IR.values.Value;
 
 
-public class BinaryInst extends Instruction {
+public class BinaryInst extends Instruction implements Assignable {
     public BinaryInst(BasicBlock basicBlock, Operator op, Value lVal, Value rVal) {
         super(lVal.getType(), op, basicBlock);
         if (isLogical()) {

@@ -6,7 +6,6 @@ import IR.values.*;
 import IR.values.instructions.BinaryInst;
 import IR.values.instructions.ConstArray;
 import IR.values.instructions.Operator;
-import IR.values.instructions.men.LoadInst;
 import node.*;
 import node.Number;
 import node.decl.*;
@@ -507,12 +506,8 @@ public class Visitor {
 
     private void visitEqExp(EqExp eqExp) {
         visitRelExp(eqExp.getRelExps().get(0));
-        if (eqExp.getRelExps().size() == 1) {
-            if (tmpValue instanceof BinaryInst binaryInst) {
-                if (binaryInst.isNumber()) {
-                    tmpValue = buildFactory.binaryInst(curBlock, Operator.Ne, tmpValue, ConstInt.ZERO);
-                }
-            } else if (tmpValue instanceof LoadInst) {
+        if (eqExp.getRelExps().size() == 1 && tmpValue instanceof Assignable) {
+            if (!(tmpValue instanceof BinaryInst binaryInst && binaryInst.isLogical())) {
                 tmpValue = buildFactory.binaryInst(curBlock, Operator.Ne, tmpValue, ConstInt.ZERO);
             }
             return;

@@ -2,11 +2,12 @@ package IR.values.instructions.men;
 
 import IR.types.PointerType;
 import IR.types.Type;
+import IR.values.Assignable;
 import IR.values.BasicBlock;
 import IR.values.Value;
 import IR.values.instructions.Operator;
 
-public class LoadInst extends MemInst {
+public class LoadInst extends MemInst implements Assignable {
     public LoadInst(BasicBlock basicBlock, Value pointer) {
         super(((PointerType) pointer.getType()).getTargetType(), Operator.Load, basicBlock);
         setName("%" + valNumber++);
