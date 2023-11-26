@@ -638,21 +638,29 @@ public class Visitor {
     }
 
     private void visitLVal(LVal lVal) {
-        //isGlobal有待商榷没有太仔细考虑
         String name = lVal.getIdent().getToken();
         Value pointer = symbolTables.getValue(name);
         ArrayList<Value> indices = new ArrayList<>();
-        if (lVal.getExps().isEmpty()) {
-            if (isGlobal || calculable) {
+        if (isGlobal || calculable) {
+            if (lVal.getExps().isEmpty()) {
                 immediate = ((ConstInt) ((GlobalVar) pointer).getValue()).getVal();
             } else {
-                if (!(((PointerType) pointer.getType()).getTargetType() instanceof ArrayType)) {
-                    tmpValue = buildFactory.loadInst(curBlock, pointer);
-                } else {
-                    indices.add(ConstInt.ZERO);
-                    indices.add(ConstInt.ZERO);
-                    tmpValue = buildFactory.gepInst(pointer, indices, curBlock);
+                tmpValue = ((GlobalVar) pointer).getValue();
+                for (Exp exp : lVal.getExps()) {
+                    visitExp(exp);
+                    tmpValue = ((ConstArray) tmpValue).getValues().get(immediate);
                 }
+                immediate = ((ConstInt) tmpValue).getVal();
+            }
+            return;
+        }
+        if (lVal.getExps().isEmpty()) {
+            if (!(((PointerType) pointer.getType()).getTargetType() instanceof ArrayType)) {
+                tmpValue = buildFactory.loadInst(curBlock, pointer);
+            } else {
+                indices.add(ConstInt.ZERO);
+                indices.add(ConstInt.ZERO);
+                tmpValue = buildFactory.gepInst(pointer, indices, curBlock);
             }
         } else {
             //a[i][j] or a[i]
