@@ -37,6 +37,7 @@ public class Visitor {
     private Value tmpValue;
     private Type tmpType;
     private boolean isGlobal;
+    private boolean calculable;
 
     private int calculate(int a, int b, TokenType op) {
         switch (op) {
@@ -87,8 +88,8 @@ public class Visitor {
     }
 
     private void visitConstDecl(ConstDecl constDecl) {
-        tmpType = IntegerType.i32;//int
         for (ConstDef constDef : constDecl.getConstDefs()) {
+            tmpType = IntegerType.i32;//int
             visitConstDef(constDef);
         }
     }
@@ -97,13 +98,12 @@ public class Visitor {
         String name = constDef.getIdent().getToken();
         if (!constDef.getConstExps().isEmpty()) {//isArray
             Stack<Integer> dims = new Stack<>();
-            boolean keep = isGlobal;
-            isGlobal = true;
+            calculable = true;
             for (ConstExp constExp : constDef.getConstExps()) {
                 visitConstExp(constExp);
                 dims.push(immediate);
             }
-            isGlobal = keep;
+            calculable = false;
             tmpType = new ArrayType(IntegerType.i32, dims.pop());
             while (!dims.empty()) {
                 tmpType = new ArrayType(tmpType, dims.pop());
@@ -175,13 +175,12 @@ public class Visitor {
             }
         } else {
             Stack<Integer> dims = new Stack<>();
-            boolean keep = isGlobal;
-            isGlobal = true;
+            calculable = true;
             for (ConstExp constExp : varDef.getConstExps()) {
                 visitConstExp(constExp);
                 dims.push(immediate);
             }
-            isGlobal = keep;
+            calculable = false;
             tmpType = new ArrayType(IntegerType.i32, dims.pop());
             while (!dims.empty()) {
                 tmpType = new ArrayType(tmpType, dims.pop());
@@ -250,13 +249,13 @@ public class Visitor {
         if (!funcFParam.isArray()) {
             return IntegerType.i32;
         } else {
-            isGlobal = true;
+            calculable = true;
             Type type = IntegerType.i32;
             for (ConstExp constExp : funcFParam.getConstExps()) {
                 visitConstExp(constExp);
                 type = new ArrayType(type, immediate);
             }
-            isGlobal = false;
+            calculable = false;
             return new PointerType(type);
         }
     }
@@ -386,7 +385,11 @@ public class Visitor {
         curFalseBlock = falseBlock;
         curEndBlock = endBlock;
         curForEndBlock = falseBlock;
-        visitCond(stmtFor.getCond());//cond内会处理跳转
+        if (stmtFor.getCond() != null) {
+            visitCond(stmtFor.getCond());//cond内会处理跳转
+        } else {
+            buildFactory.brInst(curBlock, trueBlock);
+        }
         //stmt
         trueBlock.refill(curFunction);
         curBlock = trueBlock;
@@ -557,7 +560,7 @@ public class Visitor {
             int keep = immediate;
             Value prevAns = tmpValue;
             visitMulExp(mulExps.get(i));
-            if (isGlobal) {
+            if (isGlobal || calculable) {
                 immediate = calculate(keep, immediate, addExp.getOps().get(i - 1).getSymbol());
             } else {
                 Operator op = null;
@@ -579,7 +582,7 @@ public class Visitor {
             Value prevAns = tmpValue;
             int keep = immediate;
             visitUnaryExp(unaryExps.get(i));
-            if (isGlobal) {
+            if (isGlobal || calculable) {
                 immediate = calculate(keep, immediate, mulExp.getOps().get(i - 1).getSymbol());
             } else {
                 switch (ops.get(i - 1).getSymbol()) {
@@ -599,7 +602,7 @@ public class Visitor {
             visitUnaryExp(unaryExp.getUnaryExp());
             TokenType op = unaryExp.getUnaryOp().getOp().getSymbol();
             if (op == TokenType.MINU) {
-                if (isGlobal) {
+                if (isGlobal || calculable) {
                     immediate = -immediate;
                 } else {
                     tmpValue = buildFactory.binaryInst(curBlock, Operator.Sub, ConstInt.ZERO, tmpValue);
@@ -632,7 +635,7 @@ public class Visitor {
     }
 
     private void visitNumber(Number number) {
-        if (isGlobal) {
+        if (isGlobal || calculable) {
             immediate = number.getVal();
         } else {
             tmpValue = new ConstInt(number.getVal());
@@ -645,7 +648,7 @@ public class Visitor {
         Value pointer = symbolTables.getValue(name);
         ArrayList<Value> indices = new ArrayList<>();
         if (lVal.getExps().isEmpty()) {
-            if (isGlobal) {
+            if (isGlobal || calculable) {
                 immediate = ((ConstInt) ((GlobalVar) pointer).getValue()).getVal();
             } else {
                 if (!(((PointerType) pointer.getType()).getTargetType() instanceof ArrayType)) {
