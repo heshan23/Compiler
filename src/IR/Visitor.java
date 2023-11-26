@@ -149,8 +149,8 @@ public class Visitor {
 
 
     private void visitVarDecl(VarDecl varDecl) {
-        tmpType = IntegerType.i32;
         for (VarDef varDef : varDecl.getVarDefs()) {
+            tmpType = IntegerType.i32;
             visitVarDef(varDef);
         }
     }
@@ -302,6 +302,7 @@ public class Visitor {
         } else if (stmt instanceof BlockStmt blockStmt) {
             symbolTables.addSymbolTable();
             visitBlock(blockStmt.getBlock());
+            symbolTables.rmSymbolTable();
         } else if (stmt instanceof AssignExpStmt assignExpStmt) {
             doLValAssignExp(assignExpStmt.getlVal(), assignExpStmt.getExp());
         } else if (stmt instanceof AssignGetintStmt assignGetintStmt) {
@@ -330,11 +331,36 @@ public class Visitor {
 
     private void doLValAssignExp(LVal lVal, Exp exp) {
         visitExp(exp);
-        if (lVal.getExps().isEmpty()) {
-            String name = lVal.getIdent().getToken();
-            Value pointer = symbolTables.getValue(name);
-            tmpValue = buildFactory.storeInst(curBlock, tmpValue, pointer);
+        Value ans = tmpValue;
+        doLValAssign(lVal, ans);
+    }
+
+    private void doGetInt(AssignGetintStmt assignGetintStmt) {
+        LVal lVal = assignGetintStmt.getlVal();
+        Function function = (Function) symbolTables.getValue("getint");
+        Value ans = buildFactory.callInst(curBlock, function, new ArrayList<>());
+        doLValAssign(lVal, ans);
+    }
+
+    private void doLValAssign(LVal lVal, Value ans) {
+        Value pointer = symbolTables.getValue(lVal.getIdent().getToken());
+        if (!lVal.getExps().isEmpty()) {
+            Type type = pointer.getType();
+            Type target = ((PointerType) type).getTargetType();
+            ArrayList<Value> indices = new ArrayList<>();
+            if (target instanceof PointerType) {
+                //参数是a[][1],a[0][1]=getint()这样的
+                pointer = buildFactory.loadInst(curBlock, pointer);
+            } else {
+                indices.add(ConstInt.ZERO);
+            }
+            for (Exp exp : lVal.getExps()) {
+                visitExp(exp);
+                indices.add(tmpValue);
+            }
+            pointer = buildFactory.gepInst(pointer, indices, curBlock);
         }
+        tmpValue = buildFactory.storeInst(curBlock, ans, pointer);
     }
 
     private void doContinue() {
@@ -378,15 +404,6 @@ public class Visitor {
         curFalseBlock = tmpFalseBlock;
     }
 
-    private void doGetInt(AssignGetintStmt assignGetintStmt) {
-        LVal lVal = assignGetintStmt.getlVal();
-        if (lVal.getExps().isEmpty()) {
-            Value val = symbolTables.getValue(lVal.getIdent().getToken());
-            Function function = (Function) symbolTables.getValue("getint");
-            tmpValue = buildFactory.callInst(curBlock, function, new ArrayList<>());
-            tmpValue = buildFactory.storeInst(curBlock, tmpValue, val);
-        }
-    }
 
     private void doIfStmt(IfStmt ifStmt) {
         BasicBlock tmpTrueBlock = curTrueBlock;
@@ -587,6 +604,8 @@ public class Visitor {
                 } else {
                     tmpValue = buildFactory.binaryInst(curBlock, Operator.Sub, ConstInt.ZERO, tmpValue);
                 }
+            } else if (op == TokenType.NOT) {
+                tmpValue = buildFactory.binaryInst(curBlock, Operator.Eq, ConstInt.ZERO, tmpValue);
             }
         } else {
             String name = unaryExp.getIdent().getToken();

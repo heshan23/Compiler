@@ -1,15 +1,22 @@
 package IR.types;
 
 public class IntegerType implements Type {
-    private int bit;
+    private final int bit;
 
-    /*
-    i1
-    i8
-    i32
-     */
     public IntegerType(int bit) {
         this.bit = bit;
+    }
+
+    public boolean isI1() {
+        return this.bit == 1;
+    }
+
+    public boolean isI8() {
+        return this.bit == 8;
+    }
+
+    public boolean isI32() {
+        return this.bit == 32;
     }
 
     public static final IntegerType i32 = new IntegerType(32);

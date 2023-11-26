@@ -1,6 +1,7 @@
 package IR;
 
 import IR.types.FuncType;
+import IR.types.IntegerType;
 import IR.types.Type;
 import IR.values.*;
 import IR.values.instructions.*;
@@ -78,7 +79,18 @@ public class BuildFactory {
     }
 
     public BinaryInst binaryInst(BasicBlock basicBlock, Operator op, Value lVal, Value rVal) {
-        return new BinaryInst(basicBlock, op, lVal, rVal);
+        boolean isLi1 = (lVal.getType() instanceof IntegerType integerType) && integerType.isI1();
+        boolean isRi1 = (rVal.getType() instanceof IntegerType integerType) && integerType.isI1();
+        boolean isLi32 = (lVal.getType() instanceof IntegerType integerType) && integerType.isI32();
+        boolean isRi32 = (rVal.getType() instanceof IntegerType integerType) && integerType.isI32();
+        Value LVAL = lVal;
+        Value RVAL = rVal;
+        if (isLi1 && isRi32) {
+            LVAL = BuildFactory.getInstance().buildZext(basicBlock, LVAL);
+        } else if (isLi32 && isRi1) {
+            RVAL = BuildFactory.getInstance().buildZext(basicBlock, RVAL);
+        }
+        return new BinaryInst(basicBlock, op, LVAL, RVAL);
     }
 
     public LoadInst loadInst(BasicBlock basicBlock, Value pointer) {
@@ -98,8 +110,8 @@ public class BuildFactory {
         return new BrInst(basicBlock, trueBlock, falseBlock, cond);
     }
 
-    public ConvInst buildZext(BasicBlock basicBlock) {
-        return new ConvInst(Operator.Zext, basicBlock);
+    public ConvInst buildZext(BasicBlock basicBlock, Value value) {
+        return new ConvInst(Operator.Zext, value, basicBlock);
     }
 
     public GlobalVar buildGlobalArray(String name, Type type, boolean isCon, Value initValue) {
