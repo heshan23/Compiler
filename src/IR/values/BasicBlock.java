@@ -1,6 +1,7 @@
 package IR.values;
 
 import IO.OutputHandler;
+import IR.BuildFactory;
 import IR.types.LabelType;
 import IR.values.instructions.Instruction;
 import IR.values.instructions.terminator.TerminatorInst;
@@ -42,11 +43,9 @@ public class BasicBlock extends Value {
 
     public void genLLVM() {
         OutputHandler.genLLVM(getName() + ":");
+        BuildFactory.getInstance().buildRetInst(this);
         for (Instruction instruction : instructions) {
             OutputHandler.genLLVM("\t" + instruction);
-        }
-        if (!isTerminated) {
-            OutputHandler.genLLVM("\tret void");
         }
     }
 }

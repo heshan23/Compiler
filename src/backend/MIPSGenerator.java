@@ -59,6 +59,7 @@ public class MIPSGenerator {
                     if (!(instruction instanceof AllocInst)) {
                         getSp(instruction.getName(), instruction);
                     }
+                    OutputHandler.genMIPS("#" + instruction);
                     translate(instruction);
                 }
             }
