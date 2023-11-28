@@ -39,7 +39,7 @@ public class ConstArray extends Const {
         setType(new ArrayType(values.get(0).getType(), values.size()));
     }
 
-    private boolean allZero() {
+    public boolean allZero() {
         for (Value value : values) {
             if (value instanceof ConstInt constInt) {
                 if (constInt.getVal() != 0) {

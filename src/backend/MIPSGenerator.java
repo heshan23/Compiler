@@ -75,24 +75,36 @@ public class MIPSGenerator {
     }
 
     private void genGlobalVar(GlobalVar globalVar) {
-        StringBuilder ans = new StringBuilder(globalVarLabel(globalVar.getName()) + ": .word ");
+        StringBuilder ans = new StringBuilder(globalVarLabel(globalVar.getName()));
         if (globalVar.getValue() instanceof ConstArray constArray) {
-            ans.append(listArray(constArray));
+            if (constArray.allZero()) {
+                ans.append(": .space ");
+                int space = 4 * ((ArrayType) constArray.getType()).getCapacity();
+                ans.append(space);
+            } else {
+                ans.append(": .word ");
+                ArrayType arrayType = (ArrayType) ((PointerType) globalVar.getType()).getTargetType();
+                ans.append(listGlobalArray(arrayType, constArray));
+            }
         } else {
+            ans.append(": .word ");
             ans.append(globalVar.getValue().getName());
         }
         OutputHandler.genMIPS(ans.toString());
     }
 
-    private String listArray(ConstArray constArray) {
+    private String listGlobalArray(ArrayType arrayType, ConstArray constArray) {
         StringBuilder res = new StringBuilder();
         for (Value value : constArray.getValues()) {
             if (value instanceof ConstArray) {
-                res.append(listArray((ConstArray) value));
+                res.append(listGlobalArray((ArrayType) arrayType.getElementType(),
+                        (ConstArray) value));
             } else {
                 res.append(value.getName()).append(',');
             }
         }
+        int last = arrayType.getLen() - constArray.getValues().size();
+        res.append("0,".repeat(Math.max(0, last)));
         return res.toString();
     }
 
