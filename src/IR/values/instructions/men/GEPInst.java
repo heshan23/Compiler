@@ -32,12 +32,16 @@ public class GEPInst extends MemInst {
         return ans;
     }
 
-    private Value getPointer() {
+    public Value getPointer() {
         return getOperands().get(0);
     }
 
     private String getIndex(Value value) {
         return value.getType().toString() + ' ' + value.getName();
+    }
+
+    public ArrayList<Value> getIndices() {
+        return indices;
     }
 
     @Override

@@ -1,10 +1,7 @@
-package IR.values.instructions;
+package IR.values;
 
 import IR.types.ArrayType;
 import IR.types.Type;
-import IR.values.Const;
-import IR.values.ConstInt;
-import IR.values.Value;
 
 import java.util.ArrayList;
 

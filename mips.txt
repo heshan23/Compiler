@@ -1,0 +1,263 @@
+.macro getInt
+li $v0, 5
+syscall
+.end_macro
+.macro putInt
+li $v0, 1
+syscall
+.end_macro
+.macro putCh
+li $v0, 11
+syscall
+.end_macro
+.macro putStr
+li $v0, 4
+syscall
+.end_macro
+.data
+a: .word 1,2,3,4,5,6,
+b: .word 3,8,5,1,2,0,0,0,0,
+.text
+jal main
+li $v0, 10
+syscall
+a1:
+lw $t0, 4($sp)
+sw $t0, 0($sp)
+a1_1:
+lw $t0, 0($sp)
+sw $t0, -4($sp)
+lw $t0, -4($sp)
+sw $t0, -8($sp)
+lw $t1, -8($sp)
+li $t2, 1
+sgt $t0, $t1, $t2
+sw $t0, -12($sp)
+lw $t0, -12($sp)
+bgtz $t0, a1_5
+j a1_8
+a1_5:
+lw $t0, -4($sp)
+sw $t0, -16($sp)
+lw $t1, -16($sp)
+li $t2, 1
+sub $t0, $t1, $t2
+sw $t0, -20($sp)
+sw $ra, -24($sp)
+lw $t0, -20($sp)
+sw $t0, -28($sp)
+addi $sp, $sp, -32
+jal a1
+addi $sp, $sp, 32
+lw $ra, -24($sp)
+j a1_8
+a1_8:
+jr $ra
+a2:
+lw $t0, 8($sp)
+sw $t0, -24($sp)
+lw $t0, 4($sp)
+sw $t0, -28($sp)
+a2_2:
+lw $t0, -24($sp)
+sw $t0, -32($sp)
+lw $t0, -28($sp)
+sw $t0, -36($sp)
+lw $t0, -32($sp)
+sw $t0, -40($sp)
+lw $t0, -36($sp)
+sw $t0, -44($sp)
+lw $t0, -44($sp)
+addi $t0, $t0, 8
+sw $t0, -48($sp)
+lw $t0, -48($sp)
+lw $t0, 0($t0)
+sw $t0, -52($sp)
+lw $t1, -40($sp)
+lw $t2, -52($sp)
+add $t0, $t1, $t2
+sw $t0, -56($sp)
+lw $v0, -56($sp)
+jr $ra
+a3:
+lw $t0, 12($sp)
+sw $t0, -60($sp)
+lw $t0, 8($sp)
+sw $t0, -64($sp)
+lw $t0, 4($sp)
+sw $t0, -68($sp)
+a3_3:
+lw $t0, -60($sp)
+sw $t0, -72($sp)
+lw $t0, -64($sp)
+sw $t0, -76($sp)
+addi $t0, $sp, -92
+sw $t0, -80($sp)
+lw $t0, -68($sp)
+sw $t0, -80($sp)
+lw $t0, -72($sp)
+sw $t0, -96($sp)
+lw $t0, -76($sp)
+sw $t0, -100($sp)
+lw $t0, -100($sp)
+addi $t0, $t0, 4
+sw $t0, -104($sp)
+lw $t0, -104($sp)
+lw $t0, 0($t0)
+sw $t0, -108($sp)
+lw $t1, -96($sp)
+lw $t2, -108($sp)
+mult $t1, $t2
+mflo $t0
+sw $t0, -112($sp)
+lw $t0, -80($sp)
+sw $t0, -116($sp)
+lw $t0, -116($sp)
+addi $t0, $t0, 24
+addi $t0, $t0, 4
+sw $t0, -120($sp)
+lw $t0, -120($sp)
+lw $t0, 0($t0)
+sw $t0, -124($sp)
+lw $t1, -112($sp)
+lw $t2, -124($sp)
+sub $t0, $t1, $t2
+sw $t0, -128($sp)
+lw $v0, -128($sp)
+jr $ra
+main:
+main_0:
+addi $t0, $sp, -156
+sw $t0, -132($sp)
+lw $t0, -132($sp)
+addi $t0, $t0, 0
+addi $t0, $t0, 0
+addi $t0, $t0, 0
+sw $t0, -160($sp)
+li $t0, 1
+lw $t1, -160($sp)
+sw $t0, 0($t1)
+lw $t0, -132($sp)
+addi $t0, $t0, 0
+addi $t0, $t0, 0
+addi $t0, $t0, 4
+sw $t0, -164($sp)
+li $t0, 2
+lw $t1, -164($sp)
+sw $t0, 0($t1)
+lw $t0, -132($sp)
+addi $t0, $t0, 0
+addi $t0, $t0, 0
+addi $t0, $t0, 8
+sw $t0, -168($sp)
+li $t0, 3
+lw $t1, -168($sp)
+sw $t0, 0($t1)
+lw $t0, -132($sp)
+addi $t0, $t0, 0
+addi $t0, $t0, 12
+addi $t0, $t0, 0
+sw $t0, -172($sp)
+li $t0, 0
+lw $t1, -172($sp)
+sw $t0, 0($t1)
+lw $t0, -132($sp)
+addi $t0, $t0, 0
+addi $t0, $t0, 12
+addi $t0, $t0, 4
+sw $t0, -176($sp)
+li $t0, 0
+lw $t1, -176($sp)
+sw $t0, 0($t1)
+lw $t0, -132($sp)
+addi $t0, $t0, 0
+addi $t0, $t0, 12
+addi $t0, $t0, 8
+sw $t0, -180($sp)
+li $t0, 0
+lw $t1, -180($sp)
+sw $t0, 0($t1)
+lw $t0, -132($sp)
+addi $t0, $t0, 0
+addi $t0, $t0, 0
+addi $t0, $t0, 8
+sw $t0, -184($sp)
+lw $t0, -184($sp)
+lw $t0, 0($t0)
+sw $t0, -188($sp)
+sw $ra, -192($sp)
+lw $t0, -188($sp)
+sw $t0, -196($sp)
+addi $sp, $sp, -200
+jal a1
+addi $sp, $sp, 200
+lw $ra, -192($sp)
+la $t0, a
+addi $t0, $t0, 0
+addi $t0, $t0, 16
+sw $t0, -192($sp)
+lw $t0, -192($sp)
+lw $t0, 0($t0)
+sw $t0, -196($sp)
+la $t0, a
+addi $t0, $t0, 0
+addi $t0, $t0, 0
+sw $t0, -200($sp)
+sw $ra, -208($sp)
+lw $t0, -196($sp)
+sw $t0, -212($sp)
+lw $t0, -200($sp)
+sw $t0, -216($sp)
+addi $sp, $sp, -220
+jal a2
+addi $sp, $sp, 220
+lw $ra, -208($sp)
+sw $v0, -204($sp)
+lw $t0, -204($sp)
+sw $t0, -208($sp)
+la $t0, b
+addi $t0, $t0, 0
+addi $t0, $t0, 0
+addi $t0, $t0, 4
+sw $t0, -212($sp)
+lw $t0, -212($sp)
+lw $t0, 0($t0)
+sw $t0, -216($sp)
+la $t0, b
+addi $t0, $t0, 0
+addi $t0, $t0, 12
+sw $t0, -220($sp)
+lw $t0, -220($sp)
+addi $t0, $t0, 0
+addi $t0, $t0, 0
+sw $t0, -224($sp)
+la $t0, b
+addi $t0, $t0, 0
+addi $t0, $t0, 0
+sw $t0, -228($sp)
+sw $ra, -236($sp)
+lw $t0, -216($sp)
+sw $t0, -240($sp)
+lw $t0, -224($sp)
+sw $t0, -244($sp)
+lw $t0, -228($sp)
+sw $t0, -248($sp)
+addi $sp, $sp, -252
+jal a3
+addi $sp, $sp, 252
+lw $ra, -236($sp)
+sw $v0, -232($sp)
+lw $t0, -232($sp)
+sw $t0, -236($sp)
+lw $t0, -208($sp)
+sw $t0, -240($sp)
+lw $t0, -236($sp)
+sw $t0, -244($sp)
+lw $t1, -240($sp)
+lw $t2, -244($sp)
+add $t0, $t1, $t2
+sw $t0, -248($sp)
+lw $a0, -248($sp)
+putInt
+li $v0, 0
+jr $ra

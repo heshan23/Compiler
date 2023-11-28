@@ -4,7 +4,7 @@ import IR.SymbolTable.SymbolTable;
 import IR.types.*;
 import IR.values.*;
 import IR.values.instructions.BinaryInst;
-import IR.values.instructions.ConstArray;
+import IR.values.ConstArray;
 import IR.values.instructions.Operator;
 import node.*;
 import node.Number;

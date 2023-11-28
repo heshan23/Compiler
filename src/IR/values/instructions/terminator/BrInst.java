@@ -18,11 +18,11 @@ public class BrInst extends TerminatorInst {
         addOperands(falseBlock);
     }
 
-    private boolean noneCond() {
+    public boolean noneCond() {
         return getOperands().size() == 1;
     }
 
-    private BasicBlock getTrueBlock() {
+    public BasicBlock getTrueBlock() {
         if (noneCond()) {
             return (BasicBlock) getOperands().get(0);
         } else {
@@ -30,12 +30,12 @@ public class BrInst extends TerminatorInst {
         }
     }
 
-    private BasicBlock getFalseBlock() {
+    public BasicBlock getFalseBlock() {
         //assert !noneCond();
         return (BasicBlock) getOperands().get(2);
     }
 
-    private Value getCond() {
+    public Value getCond() {
         //assert !noneCond();
         return getOperands().get(0);
     }

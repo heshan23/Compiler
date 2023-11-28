@@ -17,7 +17,7 @@ public class ConvInst extends Instruction {
         addOperands(value);
     }
 
-    private Value getValue() {
+    public Value getValue() {
         return getOperands().get(0);
     }
 

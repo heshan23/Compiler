@@ -2,11 +2,13 @@ package backend;
 
 import IO.OutputHandler;
 import IR.IRModule;
-import IR.types.VoidType;
+import IR.types.*;
 import IR.values.*;
 import IR.values.instructions.BinaryInst;
 import IR.values.instructions.CallInst;
+import IR.values.instructions.ConvInst;
 import IR.values.instructions.Instruction;
+import IR.values.instructions.men.GEPInst;
 import IR.values.instructions.men.StoreInst;
 import IR.values.instructions.men.AllocInst;
 import IR.values.instructions.men.LoadInst;
@@ -14,6 +16,8 @@ import IR.values.instructions.terminator.BrInst;
 import IR.values.instructions.terminator.RetInst;
 import backend.Symbol.MipsSymbol;
 import backend.Symbol.MipsSymbolTable;
+
+import java.util.ArrayList;
 
 public class MIPSGenerator {
     private static final MIPSGenerator mipsGenerator = new MIPSGenerator();
@@ -23,6 +27,7 @@ public class MIPSGenerator {
     }
 
     private final MipsSymbolTable symbolTables = new MipsSymbolTable();
+    Function curFunc;
 
     public void genMIPS() {
         IRModule irModule = IRModule.getInstance();
@@ -38,6 +43,7 @@ public class MIPSGenerator {
         li("$v0", 10);
         syscall();
         for (Function function : irModule.getFunctions()) {
+            curFunc = function;
             symbolTables.addSymbolTable();
             OutputHandler.genMIPS(function.getName() + ":");
             int rec = function.getArguments().size();
@@ -56,8 +62,8 @@ public class MIPSGenerator {
                     translate(instruction);
                 }
             }
+            symbolTables.rmSymbolTable();
         }
-        symbolTables.rmSymbolTable();
     }
 
     private void genMacro() {
@@ -68,8 +74,25 @@ public class MIPSGenerator {
     }
 
     private void genGlobalVar(GlobalVar globalVar) {
-        String ans = globalVarLabel(globalVar.getName()) + ": .word " + globalVar.getValue().getName();
-        OutputHandler.genMIPS(ans);
+        StringBuilder ans = new StringBuilder(globalVarLabel(globalVar.getName()) + ": .word ");
+        if (globalVar.getValue() instanceof ConstArray constArray) {
+            ans.append(listArray(constArray));
+        } else {
+            ans.append(globalVar.getValue().getName());
+        }
+        OutputHandler.genMIPS(ans.toString());
+    }
+
+    private String listArray(ConstArray constArray) {
+        StringBuilder res = new StringBuilder();
+        for (Value value : constArray.getValues()) {
+            if (value instanceof ConstArray) {
+                res.append(listArray((ConstArray) value));
+            } else {
+                res.append(value.getName()).append(',');
+            }
+        }
+        return res.toString();
     }
 
     private String globalVarLabel(String name) {
@@ -78,6 +101,10 @@ public class MIPSGenerator {
 
     private String blockLabel(Function function, BasicBlock basicBlock) {
         return function.getName() + '_' + basicBlock.getName();
+    }
+
+    private String blockLabel(BasicBlock basicBlock) {
+        return curFunc.getName() + '_' + basicBlock.getName();
     }
 
     private void genGetInt() {
@@ -115,34 +142,103 @@ public class MIPSGenerator {
     private void translate(Instruction ir) {
         if (ir instanceof AllocInst allocInst) {
             parseAllocInst(allocInst);
+        } else if (ir instanceof GEPInst gepInst) {
+            parseGepInst(gepInst);
         } else if (ir instanceof LoadInst loadInst) {
             parseLoadInst(loadInst);
         } else if (ir instanceof StoreInst storeInst) {
             parseStoreInst(storeInst);
         } else if (ir instanceof BrInst brInst) {
-
+            parseBrInst(brInst);
         } else if (ir instanceof RetInst retInst) {
             parseRet(retInst);
         } else if (ir instanceof BinaryInst binaryInst) {
             parseBinary(binaryInst);
         } else if (ir instanceof CallInst callInst) {
             parseCall(callInst);
+        } else if (ir instanceof ConvInst convInst) {
+            parseConvInst(convInst);
         }
     }
 
     private void parseAllocInst(AllocInst allocInst) {
         //指向int32
-        getSp(allocInst.getName(), allocInst);
+        Type type = allocInst.getType();
+        Type target = ((PointerType) type).getTargetType();
+        if (target instanceof IntegerType) {
+            getSp(allocInst.getName(), allocInst);
+        } else if (target instanceof ArrayType arrayType) {
+            getSpArray(allocInst.getName(), 4 * arrayType.getCapacity(), allocInst);
+        } else if (target instanceof PointerType pointerType) {
+            if (pointerType.getTargetType() instanceof IntegerType) {
+                getSp(allocInst.getName(), allocInst);
+            } else if (pointerType.getTargetType() instanceof ArrayType arrayType) {
+                getSpArray(allocInst.getName(), 4 * arrayType.getCapacity(), allocInst);
+            }
+        }
+    }
+
+    private void parseGepInst(GEPInst gepInst) {
+        Value pointer = gepInst.getPointer();
+        Type type = pointer.getType();
+        Type target = ((PointerType) type).getTargetType();
+        ArrayList<Value> indices = gepInst.getIndices();
+        load("$t0", pointer.getName());
+        for (Value value : indices) {
+            int base;
+            int off;
+            if (target instanceof ArrayType) {
+                base = ((ArrayType) target).getCapacity() * 4;
+            } else {
+                base = 4;
+            }
+            if (value instanceof ConstInt) {
+                off = ((ConstInt) value).getVal() * base;
+                OutputHandler.genMIPS(String.format("addi $t0, $t0, %d", off));
+            } else {
+                li("$t1", base);
+                load("$t2", value.getName());
+                OutputHandler.genMIPS("mult $t1, $t2");
+                mflo("$t1");
+                OutputHandler.genMIPS("add $t0, $t0, $t1");
+            }
+            if (target instanceof ArrayType arrayType) {
+                target = arrayType.getElementType();
+            }
+        }
+        store("$t0", gepInst.getName());
     }
 
     private void parseLoadInst(LoadInst loadInst) {
-        load("$t0", loadInst.pointer().getName());
-        store("$t0", loadInst.getName());
+        if (loadInst.pointer() instanceof GEPInst) {
+            load("$t0", loadInst.pointer().getName());
+            lw("$t0", "$t0", 0);
+            store("$t0", loadInst.getName());
+        } else {
+            load("$t0", loadInst.pointer().getName());
+            store("$t0", loadInst.getName());
+        }
     }
 
     private void parseStoreInst(StoreInst storeInst) {
-        load("$t0", storeInst.getVal().getName());
-        store("$t0", storeInst.getPtr().getName());
+        if (storeInst.getPtr() instanceof GEPInst) {
+            load("$t0", storeInst.getVal().getName());
+            load("$t1", storeInst.getPtr().getName());
+            sw("$t0", "$t1", 0);
+        } else {
+            load("$t0", storeInst.getVal().getName());
+            store("$t0", storeInst.getPtr().getName());
+        }
+    }
+
+    private void parseBrInst(BrInst brInst) {
+        if (brInst.noneCond()) {
+            j(blockLabel(brInst.getTrueBlock()));
+        } else {
+            load("$t0", brInst.getCond().getName());
+            bgtz("$t0", blockLabel(brInst.getTrueBlock()));
+            j(blockLabel(brInst.getFalseBlock()));
+        }
     }
 
     private void parseRet(RetInst retInst) {
@@ -162,6 +258,12 @@ public class MIPSGenerator {
             case Mul -> mul(ans, lVal, rVal);
             case SDiv -> div(ans, lVal, rVal);
             case Mod -> mod(ans, lVal, rVal);
+            case Sgt -> cmp("sgt", ans, lVal, rVal);
+            case Sge -> cmp("sge", ans, lVal, rVal);
+            case Slt -> cmp("slt", ans, lVal, rVal);
+            case Sle -> cmp("sle", ans, lVal, rVal);
+            case Ne -> cmp("sne", ans, lVal, rVal);
+            case Eq -> cmp("seq", ans, lVal, rVal);
         }
     }
 
@@ -203,6 +305,11 @@ public class MIPSGenerator {
 
     }
 
+    private void parseConvInst(ConvInst convInst) {
+        load("$t0", convInst.getValue().getName());
+        store("$t0", convInst.getName());
+    }
+
     private void li(String reg, String val) {
         String ans = String.format("li %s, %s", reg, val);
         OutputHandler.genMIPS(ans);
@@ -223,6 +330,18 @@ public class MIPSGenerator {
 
     private void jal(String func) {
         OutputHandler.genMIPS("jal " + func);
+    }
+
+    private void j(String label) {
+        OutputHandler.genMIPS("j " + label);
+    }
+
+    private void jr(String reg) {
+        OutputHandler.genMIPS(String.format("jr %s", reg));
+    }
+
+    private void bgtz(String reg, String label) {
+        OutputHandler.genMIPS("bgtz " + reg + ", " + label);
     }
 
     private void move(String reg, String valReg) {
@@ -286,9 +405,11 @@ public class MIPSGenerator {
     private void load(String reg, String name) {
         if (isNumber(name)) {
             li(reg, name);
-        } else if (getVal(name) instanceof GlobalVar) {
+        } else if (getVal(name) instanceof GlobalVar globalVar) {
             la(reg, globalVarLabel(name));
-            lw(reg, reg, 0);//int
+            if (globalVar.getValue() instanceof ConstInt) {
+                lw(reg, reg, 0);//int
+            }
         } else {
             lw(reg, "$sp", getOff(name));
         }
@@ -311,16 +432,19 @@ public class MIPSGenerator {
         OutputHandler.genMIPS(String.format("sw %s, %s(%s)", reg, off, base));
     }
 
-    private void jr(String reg) {
-        OutputHandler.genMIPS(String.format("jr %s", reg));
-    }
-
     private void mfhi(String reg) {
         OutputHandler.genMIPS("mfhi " + reg);
     }
 
     private void mflo(String reg) {
         OutputHandler.genMIPS("mflo " + reg);
+    }
+
+    private void cmp(String ins, String ans, String reg1, String reg2) {
+        load("$t1", reg1);
+        load("$t2", reg2);
+        OutputHandler.genMIPS(ins + " $t0, $t1, $t2");
+        store("$t0", ans);
     }
 
     private boolean isNumber(String name) {
@@ -330,14 +454,24 @@ public class MIPSGenerator {
     int spOff = 0;
 
     /*
-    栈的调用：spOff指向已经存入的值，spOff-4指向当前存入的的值
+    栈的调用：spOff指向将要存的值，spOff+4指向上一个存入的的值
     */
     private void getSp(String name, Value value) {
-        if (name.isEmpty()) {
+        if (name.isEmpty() || symbolTables.contains(name)) {
             return;
         }
         symbolTables.addSymbol(name, new MipsSymbol("$sp", spOff, value));
         spOff -= 4;
+    }
+
+    private void getSpArray(String name, int off, Value value) {
+        if (name.isEmpty() || symbolTables.contains(name)) {
+            return;
+        }
+        getSp(name, value);
+        spOff -= off;
+        OutputHandler.genMIPS("addi $t0, $sp, " + (spOff + 4));
+        store("$t0", name);
     }
 
     private int getOff(String name) {
@@ -349,7 +483,7 @@ public class MIPSGenerator {
     }
 
     private void getGp(String name, Value value) {
-        if (symbolTables.contains(name)) {
+        if (name.isEmpty() || symbolTables.contains(name)) {
             return;
         }
         symbolTables.addSymbol(name, new MipsSymbol("$gp", 0, value));
