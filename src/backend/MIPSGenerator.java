@@ -207,13 +207,13 @@ public class MIPSGenerator {
             }
             if (value instanceof ConstInt) {
                 off = ((ConstInt) value).getVal() * base;
-                OutputHandler.genMIPS(String.format("addi $t0, $t0, %d", off));
+                OutputHandler.genMIPS(String.format("addiu $t0, $t0, %d", off));
             } else {
                 li("$t1", base);
                 load("$t2", value.getName());
                 OutputHandler.genMIPS("mult $t1, $t2");
                 mflo("$t1");
-                OutputHandler.genMIPS("add $t0, $t0, $t1");
+                OutputHandler.genMIPS("addu $t0, $t0, $t1");
             }
             if (target instanceof ArrayType arrayType) {
                 target = arrayType.getElementType();
@@ -306,10 +306,10 @@ public class MIPSGenerator {
                 sw("$t0", "$sp", spOff - 4 * rec);
                 rec++;
             }
-            OutputHandler.genMIPS(String.format("addi $sp, $sp, %d", spOff - 4 * rec));
+            OutputHandler.genMIPS(String.format("addiu $sp, $sp, %d", spOff - 4 * rec));
             jal(function.getName());
             //OutputHandler.genMIPS("nop");关闭延迟槽
-            OutputHandler.genMIPS(String.format("addi $sp, $sp, %d", -spOff + 4 * rec));
+            OutputHandler.genMIPS(String.format("addiu $sp, $sp, %d", -spOff + 4 * rec));
             lw("$ra", "$sp", spOff);
             if (!(callInst.getType() == VoidType.voidType)) {
                 store("$v0", callInst.getName());
@@ -380,14 +380,14 @@ public class MIPSGenerator {
     private void add(String ans, String lVal, String rVal) {
         load("$t1", lVal);
         load("$t2", rVal);
-        OutputHandler.genMIPS(String.format("add %s, %s, %s", "$t0", "$t1", "$t2"));
+        OutputHandler.genMIPS(String.format("addu %s, %s, %s", "$t0", "$t1", "$t2"));
         store("$t0", ans);
     }
 
     private void sub(String ans, String lVal, String rVal) {
         load("$t1", lVal);
         load("$t2", rVal);
-        OutputHandler.genMIPS(String.format("sub %s, %s, %s", "$t0", "$t1", "$t2"));
+        OutputHandler.genMIPS(String.format("subu %s, %s, %s", "$t0", "$t1", "$t2"));
         store("$t0", ans);
     }
 
@@ -483,7 +483,7 @@ public class MIPSGenerator {
         }
         getSp(name, value);
         spOff -= off;
-        OutputHandler.genMIPS("addi $t0, $sp, " + (spOff + 4));
+        OutputHandler.genMIPS("addiu $t0, $sp, " + (spOff + 4));
         store("$t0", name);
     }
 

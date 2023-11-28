@@ -95,14 +95,13 @@ public class Visitor {
 
     private void visitConstDef(ConstDef constDef) {
         String name = constDef.getIdent().getToken();
+        calculable = true;
         if (!constDef.getConstExps().isEmpty()) {//isArray
             Stack<Integer> dims = new Stack<>();
-            calculable = true;
             for (ConstExp constExp : constDef.getConstExps()) {
                 visitConstExp(constExp);
                 dims.push(immediate);
             }
-            calculable = false;
             tmpType = new ArrayType(IntegerType.i32, dims.pop());
             while (!dims.empty()) {
                 tmpType = new ArrayType(tmpType, dims.pop());
@@ -115,20 +114,22 @@ public class Visitor {
             }
         } else {
             visitConstInitVal(constDef.getConstInitVal());
+            symbolTables.addConst(name, immediate);
+            Value value = buildFactory.buildConstInt(immediate);
             if (isGlobal) {
-                Value value = buildFactory.buildConstInt(immediate);
                 tmpValue = buildFactory.globalVar(name, tmpType, true, value);
             } else {
-                tmpValue = buildFactory.buildVar(tmpType, tmpValue, curBlock);
+                tmpValue = buildFactory.buildVar(tmpType, value, curBlock);
             }
         }
+        calculable = false;
         symbolTables.addSymbol(name, tmpValue);
     }
 
     private void visitConstInitVal(ConstInitVal constInitVal) {
         if (constInitVal.getConstExp() != null) {
             visitConstExp(constInitVal.getConstExp());
-            if (isGlobal) {
+            if (isGlobal || calculable) {
                 tmpValue = new ConstInt(immediate);
             }
         } else {
@@ -643,7 +644,11 @@ public class Visitor {
         ArrayList<Value> indices = new ArrayList<>();
         if (isGlobal || calculable) {
             if (lVal.getExps().isEmpty()) {
-                immediate = ((ConstInt) ((GlobalVar) pointer).getValue()).getVal();
+                if (pointer instanceof GlobalVar) {
+                    immediate = ((ConstInt) ((GlobalVar) pointer).getValue()).getVal();
+                } else {
+                    immediate = symbolTables.getConst(name);
+                }
             } else {
                 tmpValue = ((GlobalVar) pointer).getValue();
                 for (Exp exp : lVal.getExps()) {
