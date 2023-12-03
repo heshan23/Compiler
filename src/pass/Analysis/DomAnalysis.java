@@ -4,10 +4,9 @@ import IR.IRModule;
 import IR.values.BasicBlock;
 import IR.values.Function;
 import IR.values.Value;
-import IR.values.instructions.Instruction;
-import IR.values.instructions.terminator.BrInst;
 
 import java.util.HashSet;
+import java.util.Objects;
 
 public class DomAnalysis {
     private static final DomAnalysis domAnalysis = new DomAnalysis();
@@ -59,14 +58,15 @@ public class DomAnalysis {
         return a != b && dom(a, b);
     }
 
-    private void calcIdom(BasicBlock it) {
-        for (BasicBlock basicBlock1 : it.getDom()) {
-            if (basicBlock1 == it) {//确保严格支配
+    private void calcIdom(BasicBlock domer) {
+        for (BasicBlock basicBlock1 : domer.getDom()) {
+            if (basicBlock1 == domer) {//确保严格支配
                 continue;
             }
+
             boolean flot = true;
-            for (BasicBlock basicBlock2 : it.getDom()) {
-                if (basicBlock2 == it) {
+            for (BasicBlock basicBlock2 : domer.getDom()) {
+                if (basicBlock2 == domer) {
                     continue;
                 }
                 if (strictDom(basicBlock2, basicBlock1)) {
@@ -75,7 +75,7 @@ public class DomAnalysis {
                 }
             }
             if (flot) {
-                basicBlock1.setIdom(it);
+                basicBlock1.setIdom(domer);
             }
         }
     }

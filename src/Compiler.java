@@ -29,10 +29,13 @@ public class Compiler {
         if (Config.genLLVM) {
             Visitor visitor = new Visitor();
             visitor.visitCompUnit(compUnit);
+            Config.outLLVM = Config.optimize ? Config.originLLVM : Config.llvmPath;
+            IRModule.getInstance().genLLVm();
             if (Config.optimize) {
                 PassModule.getInstance().run(IRModule.getInstance());
+                Config.outLLVM = Config.llvmPath;
+                IRModule.getInstance().genLLVm();
             }
-            IRModule.getInstance().genLLVm();
             if (Config.genMIPS) {
                 MIPSGenerator.getInstance().genMIPS();
             }

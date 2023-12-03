@@ -6,7 +6,9 @@ public class Config {
     public static String inputPath = "testfile.txt";
     public static String outputPath = "output.txt";
     public static String errorPath = "error.txt";
+    public static String originLLVM = "llvm_origin.txt";
     public static String llvmPath = "llvm_ir.txt";
+    public static String outLLVM = "llvm_ir.txt";
     public static String mipsPath = "mips.txt";
     public static boolean parserMessage = false;
     public static boolean checkError = false;
@@ -17,6 +19,7 @@ public class Config {
     public static void init() {
         clearFile(outputPath);
         clearFile(errorPath);
+        clearFile(originLLVM);
         clearFile(llvmPath);
         clearFile(mipsPath);
     }
