@@ -11,8 +11,8 @@ public class Config {
     public static boolean parserMessage = false;
     public static boolean checkError = false;
     public static boolean genLLVM = true;
-    public static boolean genMIPS = true;
-    public static boolean optimize = false;
+    public static boolean genMIPS = false;
+    public static boolean optimize = true;
 
     public static void init() {
         clearFile(outputPath);

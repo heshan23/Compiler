@@ -16,7 +16,12 @@ public class User extends Value {
         return operands;
     }
 
-    public void addOperands(Value value) {
+    public void addOperand(Value value) {
         this.operands.add(value);
+        value.addUse(new Use(value, this, operands.size() - 1));
+    }
+
+    public void replaceVal(int index, Value newVal) {
+        operands.set(index, newVal);
     }
 }

@@ -9,4 +9,8 @@ public class MemInst extends Instruction {
     public MemInst(Type type, Operator op, BasicBlock basicBlock) {
         super(type, op, basicBlock);
     }
+
+    public MemInst(Type type, Operator op) {
+        super(type, op);
+    }
 }

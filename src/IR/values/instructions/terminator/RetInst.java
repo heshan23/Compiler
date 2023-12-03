@@ -1,7 +1,5 @@
 package IR.values.instructions.terminator;
 
-import IO.OutputHandler;
-import IR.types.Type;
 import IR.types.VoidType;
 import IR.values.BasicBlock;
 import IR.values.Value;
@@ -14,7 +12,7 @@ public class RetInst extends TerminatorInst {
 
     public RetInst(BasicBlock basicBlock, Value value) {
         super(value.getType(), Operator.ret, basicBlock);
-        addOperands(value);
+        addOperand(value);
     }
 
     @Override

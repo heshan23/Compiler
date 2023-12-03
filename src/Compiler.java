@@ -6,6 +6,7 @@ import error.ErrorHandler;
 import frontend.Lexer;
 import frontend.Parser;
 import node.CompUnit;
+import pass.PassModule;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,6 +29,9 @@ public class Compiler {
         if (Config.genLLVM) {
             Visitor visitor = new Visitor();
             visitor.visitCompUnit(compUnit);
+            if (Config.optimize) {
+                PassModule.getInstance().run(IRModule.getInstance());
+            }
             IRModule.getInstance().genLLVm();
             if (Config.genMIPS) {
                 MIPSGenerator.getInstance().genMIPS();

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class Value {
     private String name;
     private Type type;
-    private ArrayList<Use> useList;
+    private final ArrayList<Use> useList;
     public static int valNumber = 0;
 
     public Value(String name, Type type) {
@@ -31,6 +31,26 @@ public class Value {
 
     public void setType(Type type) {
         this.type = type;
+    }
+
+    public void addUse(Use use) {
+        this.useList.add(use);
+    }
+
+    public ArrayList<Use> getUseList() {
+        return useList;
+    }
+
+    public void replacedByNewVal(Value newVal) {
+        for (Use use : useList) {
+            use.getUser().replaceVal(use.getPos(), newVal);
+            use.setValue(newVal);
+            newVal.addUse(use);
+        }
+    }
+
+    public boolean unUsed() {
+        return useList.isEmpty();
     }
 
     @Override

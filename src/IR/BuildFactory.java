@@ -5,10 +5,7 @@ import IR.types.IntegerType;
 import IR.types.Type;
 import IR.values.*;
 import IR.values.instructions.*;
-import IR.values.instructions.men.AllocInst;
-import IR.values.instructions.men.GEPInst;
-import IR.values.instructions.men.LoadInst;
-import IR.values.instructions.men.StoreInst;
+import IR.values.instructions.men.*;
 import IR.values.instructions.terminator.BrInst;
 import IR.values.instructions.terminator.RetInst;
 
@@ -102,11 +99,21 @@ public class BuildFactory {
     }
 
     public BrInst brInst(BasicBlock basicBlock, BasicBlock trueBlock) {
+        if (!basicBlock.isTerminated()) {
+            basicBlock.addNextBlock(trueBlock);
+            trueBlock.addPrevBlock(basicBlock);
+        }
         return new BrInst(basicBlock, trueBlock);
     }
 
     public BrInst brInst(BasicBlock basicBlock, BasicBlock trueBlock,
                          BasicBlock falseBlock, Value cond) {
+        if (!basicBlock.isTerminated()) {
+            basicBlock.addNextBlock(trueBlock);
+            basicBlock.addNextBlock(falseBlock);
+            trueBlock.addPrevBlock(basicBlock);
+            falseBlock.addPrevBlock(basicBlock);
+        }
         return new BrInst(basicBlock, trueBlock, falseBlock, cond);
     }
 

@@ -15,9 +15,9 @@ public class CallInst extends Instruction implements Assignable {
         if (getType() != VoidType.voidType) {
             setName("%" + valNumber++);
         }
-        addOperands(function);
+        addOperand(function);
         for (Value arg : args) {
-            addOperands(arg);
+            addOperand(arg);
         }
     }
 

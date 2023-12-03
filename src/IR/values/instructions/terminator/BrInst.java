@@ -8,14 +8,14 @@ import IR.values.instructions.Operator;
 public class BrInst extends TerminatorInst {
     public BrInst(BasicBlock basicBlock, BasicBlock trueBlock) {
         super(VoidType.voidType, Operator.br, basicBlock);
-        addOperands(trueBlock);
+        addOperand(trueBlock);
     }
 
     public BrInst(BasicBlock basicBlock, BasicBlock trueBlock, BasicBlock falseBlock, Value cond) {
         super(VoidType.voidType, Operator.br, basicBlock);
-        addOperands(cond);
-        addOperands(trueBlock);
-        addOperands(falseBlock);
+        addOperand(cond);
+        addOperand(trueBlock);
+        addOperand(falseBlock);
     }
 
     public boolean noneCond() {

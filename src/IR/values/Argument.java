@@ -8,6 +8,10 @@ public class Argument extends Value {
         super("%" + valNumber++, type);
     }
 
+    public void refreshName() {
+        setName("%" + valNumber++);
+    }
+
     @Override
     public String toString() {
         return getType().toString() + ' ' + getName();

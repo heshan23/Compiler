@@ -31,6 +31,12 @@ public class IRModule {
         return functions;
     }
 
+    public void refreshName() {
+        for (Function function : functions) {
+            function.refreshName();
+        }
+    }
+
     public void genLLVm() {
         String libFunc = """
                 declare i32 @getint()

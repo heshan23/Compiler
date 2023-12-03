@@ -48,6 +48,16 @@ public class Function extends Value {
         }
     }
 
+    public void refreshName() {
+        valNumber = 0;
+        for (Argument argument : arguments) {
+            argument.refreshName();
+        }
+        for (BasicBlock basicBlock : basicBlocks) {
+            basicBlock.refreshName();
+        }
+    }
+
 
     public Argument getKArg(int k) {
         return arguments.get(k);

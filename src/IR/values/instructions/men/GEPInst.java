@@ -16,10 +16,12 @@ public class GEPInst extends MemInst {
     public GEPInst(Value pointer, ArrayList<Value> indices, BasicBlock basicBlock) {
         super(new PointerType(myType(pointer, indices.size())), Operator.GEP, basicBlock);
         setName("%" + valNumber++);
-        addOperands(pointer);
+        addOperand(pointer);
         this.indices = indices;
         this.target = ((PointerType) pointer.getType()).getTargetType();
-
+        for (Value value : indices) {
+            addOperand(value);
+        }
     }
 
     private static Type myType(Value pointer, int dim) {

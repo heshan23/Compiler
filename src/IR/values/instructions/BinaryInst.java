@@ -12,8 +12,8 @@ public class BinaryInst extends Instruction implements Assignable {
         if (isLogical()) {
             setType(IntegerType.i1);
         }
-        addOperands(lVal);
-        addOperands(rVal);
+        addOperand(lVal);
+        addOperand(rVal);
         setName("%" + valNumber++);
     }
 
