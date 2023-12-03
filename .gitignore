@@ -27,3 +27,8 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+src.zip
+src1.zip
+llvm_ir.txt
+llvm_origin.txt
