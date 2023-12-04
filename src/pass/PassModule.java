@@ -12,7 +12,8 @@ public class PassModule {
     public void run(IRModule irModule) {
         new DelUnreachedBB(irModule).run();
         new Mem2Reg(irModule).run();
-//        new GVN(irModule).run();
+        new DelDeadCode(irModule).run();
+        new LVN(irModule).run();
         new DelDeadCode(irModule).run();
         //new RemovePhi(irModule).run();
         irModule.refreshName();
