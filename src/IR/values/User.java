@@ -24,4 +24,10 @@ public class User extends Value {
     public void replaceVal(int index, Value newVal) {
         operands.set(index, newVal);
     }
+
+    public void deleteUse() {
+        for (Value value : operands) {
+            value.deleteUser(this);
+        }
+    }
 }

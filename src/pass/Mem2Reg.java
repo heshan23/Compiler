@@ -98,12 +98,14 @@ public class Mem2Reg {
             } else if (instr instanceof StoreInst && defInstr.contains(instr)) {
                 reachDef.push(((StoreInst) instr).getVal());
                 cnt++;
+                instr.deleteUse();
                 it.remove();
             } else if (instr instanceof LoadInst && useInstr.contains(instr)) {
                 Value newVal = (reachDef.isEmpty()) ? new NullValue() : reachDef.peek();
                 instr.replacedByNewVal(newVal);
+                instr.deleteUse();
                 it.remove();
-            } else if (instr instanceof PhiInst&&defInstr.contains(instr)) {
+            } else if (instr instanceof PhiInst && defInstr.contains(instr)) {
                 reachDef.push(instr);
                 cnt++;
             }

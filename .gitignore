@@ -29,6 +29,6 @@ bin/
 .DS_Store
 
 src.zip
-src1.zip
+ans.zip
 llvm_ir.txt
 llvm_origin.txt

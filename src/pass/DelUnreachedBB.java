@@ -1,17 +1,15 @@
-package pass.Analysis;
+package pass;
 
 import IR.IRModule;
 import IR.values.BasicBlock;
 import IR.values.Function;
-import IR.values.Value;
 
 import java.util.HashSet;
-import java.util.Iterator;
 
-public class DelDeadBB {
+public class DelUnreachedBB {
     private final IRModule irModule;
 
-    public DelDeadBB(IRModule irModule) {
+    public DelUnreachedBB(IRModule irModule) {
         this.irModule = irModule;
     }
 

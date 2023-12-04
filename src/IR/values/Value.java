@@ -4,6 +4,7 @@ package IR.values;
 import IR.types.Type;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Value {
     private String name;
@@ -47,6 +48,10 @@ public class Value {
             use.setValue(newVal);
             newVal.addUse(use);
         }
+    }
+
+    public void deleteUser(User user) {
+        useList.removeIf(use -> use.getUser() == user);
     }
 
     public boolean unUsed() {
