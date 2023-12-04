@@ -6,10 +6,13 @@ import IR.values.ConstInt;
 import IR.values.Function;
 import IR.values.Value;
 import IR.values.instructions.BinaryInst;
+import IR.values.instructions.CallInst;
 import IR.values.instructions.Instruction;
 import IR.values.instructions.Operator;
+import IR.values.instructions.men.GEPInst;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 
 
@@ -30,8 +33,28 @@ public class LVN {
 
     private void LVNVisit(BasicBlock entry) {
         optimizeCalc(entry);
+        HashSet<Instruction> inserted = new HashSet<>();
+        Iterator<Instruction> it = entry.getInstructions().iterator();
+        while (it.hasNext()) {
+            Instruction instr = it.next();
+            String hash = getGVNHash(instr);
+            if (hash == null) {
+                return;
+            }
+            if (map.containsKey(hash)) {
+                instr.replacedByNewVal(map.get(hash));
+                instr.deleteUse();
+                it.remove();
+            } else {
+                map.put(hash, instr);
+                inserted.add(instr);
+            }
+        }
         for (BasicBlock bb : entry.getImmDomList()) {
             LVNVisit(bb);
+        }
+        for (Instruction instr : inserted) {
+            map.remove(getGVNHash(instr));
         }
     }
 
@@ -78,9 +101,7 @@ public class LVN {
         return new ConstInt(ans);
     }
 
-//    private Value calcNoneCon() {
-//
-//    }
+//    private Value calcNoneCon() {}
 
     private Value calcSingleCon(Value left, Value right, Operator op) {
         switch (op) {
@@ -118,5 +139,32 @@ public class LVN {
 
     private boolean isOne(Value value) {
         return (value instanceof ConstInt constInt && constInt.getVal() == 1);
+    }
+
+    private String getGVNHash(Instruction instr) {
+        if (instr instanceof BinaryInst binaryInst) {
+            String lVal = binaryInst.lVal().getName();
+            String rVal = binaryInst.rVal().getName();
+            String op = binaryInst.getOp().toString();
+            if (binaryInst.getOp() == Operator.Add || binaryInst.getOp() == Operator.Mul) {
+                if (lVal.compareTo(rVal) > 0) {
+                    return rVal + ' ' + op + ' ' + lVal;
+                }
+            }
+            return lVal + ' ' + op + ' ' + rVal;
+        } else if (instr instanceof CallInst callInst) {
+            if (callInst.getFunction().isLibrary() || callInst.getFunction().hasSideEffect()) {
+                return null;
+            }
+            return callInst.getCallee();
+        } else if (instr instanceof GEPInst gepInst) {
+            StringBuilder res = new StringBuilder();
+            res.append(gepInst.getPointer().getName());
+            for (Value value : gepInst.getIndices()) {
+                res.append(", ").append(value.getName());
+            }
+            return res.toString();
+        }
+        return null;
     }
 }

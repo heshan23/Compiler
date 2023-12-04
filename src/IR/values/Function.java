@@ -13,6 +13,7 @@ public class Function extends Value {
     private final boolean isLibrary;
     private final ArrayList<Argument> arguments;
     private final ArrayList<BasicBlock> basicBlocks = new ArrayList<>();
+    private boolean hasSideEffect = false;
 
     public Function(String name, Type type, boolean isLibrary) {
         super(name, type);
@@ -58,6 +59,13 @@ public class Function extends Value {
         }
     }
 
+    public boolean hasSideEffect() {
+        return hasSideEffect;
+    }
+
+    public void setHasSideEffect() {
+        this.hasSideEffect = true;
+    }
 
     public Argument getKArg(int k) {
         return arguments.get(k);

@@ -25,7 +25,7 @@ public class CallInst extends Instruction implements Assignable {
         return (Function) getOperands().get(0);
     }
 
-    private String getCallee() {
+    public String getCallee() {
         StringBuilder funcName = new StringBuilder("@" + getOperands().get(0).getName() + "(");
         if (getOperands().size() > 1) {
             Value arg1 = getOperands().get(1);

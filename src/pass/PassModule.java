@@ -1,6 +1,7 @@
 package pass;
 
 import IR.IRModule;
+import pass.Analysis.FuncAnalysis;
 
 public class PassModule {
     private static final PassModule passModule = new PassModule();
@@ -10,6 +11,7 @@ public class PassModule {
     }
 
     public void run(IRModule irModule) {
+        new FuncAnalysis(irModule).run();
         new DelUnreachedBB(irModule).run();
         new Mem2Reg(irModule).run();
         new DelDeadCode(irModule).run();

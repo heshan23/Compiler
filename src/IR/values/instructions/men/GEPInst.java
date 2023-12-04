@@ -10,7 +10,7 @@ import IR.values.instructions.Operator;
 import java.util.ArrayList;
 
 public class GEPInst extends MemInst {
-    private Type target;
+    private final Type target;
 
     public GEPInst(Value pointer, ArrayList<Value> indices, BasicBlock basicBlock) {
         super(new PointerType(myType(pointer, indices.size())), Operator.GEP, basicBlock);
@@ -41,7 +41,7 @@ public class GEPInst extends MemInst {
     }
 
     public ArrayList<Value> getIndices() {
-        return (ArrayList<Value>) getOperands().subList(1, getOperands().size());
+        return new ArrayList<>(getOperands().subList(1, getOperands().size()));
     }
 
     @Override
