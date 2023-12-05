@@ -6,6 +6,7 @@ import IR.values.*;
 import IR.values.instructions.BinaryInst;
 import IR.values.ConstArray;
 import IR.values.instructions.Operator;
+import config.Config;
 import node.*;
 import node.Number;
 import node.decl.*;
@@ -18,6 +19,7 @@ import token.Token;
 import token.TokenType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Stack;
 
 
@@ -307,7 +309,11 @@ public class Visitor {
         } else if (stmt instanceof AssignGetintStmt assignGetintStmt) {
             doGetInt(assignGetintStmt);
         } else if (stmt instanceof PrintfStmt printfStmt) {
-            doPrintf(printfStmt);
+            if (Config.char2str) {
+                optimizePrintf(printfStmt);
+            } else {
+                doPrintf(printfStmt);
+            }
         } else if (stmt instanceof ExpStmt expStmt) {
             visitExp(expStmt.getExp());
         } else if (stmt instanceof IfStmt ifStmt) {
@@ -466,6 +472,65 @@ public class Visitor {
                 args.add(buildFactory.buildConstInt(c));
                 tmpValue = buildFactory.callInst(curBlock, putCh, args);
             }
+        }
+    }
+
+    HashMap<String, Integer> strMap = new HashMap<>();
+    int strCnt = 0;
+
+    private int getStrIndex(String str) {
+        if (strMap.containsKey(str)) {
+            return strMap.get(str);
+        }
+        ConstStr constStr = new ConstStr(str);
+        ArrayType arrayType = new ArrayType(IntegerType.i8, constStr.getLength());
+        String strName = getStrName(strCnt);
+        Value value = buildFactory.globalVar(strName, arrayType, true, constStr);
+        symbolTables.addGlobalSymbol(strName, value);
+        strMap.put(str, strCnt);
+        return strCnt++;
+    }
+
+    private String getStrName(int index) {
+        return "hs_new_global_str_" + index;
+    }
+
+    private String getStrName(String str) {
+        return getStrName(getStrIndex(str));
+    }
+
+    private void optimizePrintf(PrintfStmt printfStmt) {
+        Function putCh = (Function) symbolTables.getValue("putch");
+        Function putStr = (Function) symbolTables.getValue("putstr");
+        Function putInt = (Function) symbolTables.getValue("putint");
+        String format = printfStmt.getFormatString().getToken();
+        int cnt = 0;
+        for (int i = 1; i < format.length() - 1; i++) {
+            ArrayList<Value> args = new ArrayList<>();
+            if (format.charAt(i) == '%') {
+                i++;//%d
+                visitExp(printfStmt.getExps().get(cnt++));
+                args.add(tmpValue);
+                tmpValue = buildFactory.callInst(curBlock, putInt, args);
+                continue;
+            }
+            int j = i;
+            while (j < format.length() - 1 && format.charAt(j) != '%') {
+                j++;
+            }
+            String str = format.substring(i, j).replace("\\n", "\n");
+            if (str.length() == 1) {
+                args.add(buildFactory.buildConstInt(str.charAt(0)));
+                tmpValue = buildFactory.callInst(curBlock, putCh, args);
+            } else {
+                Value globalStr = symbolTables.getValue(getStrName(str));
+                ArrayList<Value> indices = new ArrayList<>();
+                indices.add(ConstInt.ZERO);
+                indices.add(ConstInt.ZERO);
+                args.add(buildFactory.gepInst(globalStr, indices, curBlock));
+                tmpValue = buildFactory.callInst(curBlock, putStr, args);
+            }
+            i = j - 1;
         }
     }
 

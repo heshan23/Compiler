@@ -3,9 +3,10 @@ package IR.values;
 import IR.types.Type;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class User extends Value {
-    private ArrayList<Value> operands;
+    private final ArrayList<Value> operands;
 
     public User(String name, Type type) {
         super(name, type);
@@ -29,5 +30,6 @@ public class User extends Value {
         for (Value value : operands) {
             value.deleteUser(this);
         }
+        this.operands.clear();
     }
 }

@@ -1,6 +1,7 @@
 package IR.values.instructions.men;
 
 import IR.types.ArrayType;
+import IR.types.IntegerType;
 import IR.types.PointerType;
 import IR.types.Type;
 import IR.values.BasicBlock;
@@ -48,6 +49,10 @@ public class GEPInst extends MemInst {
     public String toString() {
         StringBuilder res = new StringBuilder(getName());
         res.append(" = getelementptr ");
+        if (target instanceof ArrayType arrayType
+                && arrayType.getElementType() == IntegerType.i8) {
+            res.append("inbounds ");
+        }
         res.append(target).append(", ");
         res.append(getPointer().getType()).append(" ");
         res.append(getPointer().getName()).append(", ");

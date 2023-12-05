@@ -32,6 +32,10 @@ public class SymbolTable {
         this.constTables.get(constTables.size() - 1).put(name, value);
     }
 
+    public void addGlobalSymbol(String name, Value value) {
+        this.symbolTables.get(0).put(name, value);
+    }
+
     public Value getValue(String name) {
         for (int i = symbolTables.size() - 1; i >= 0; i--) {
             if (symbolTables.get(i).containsKey(name)) {

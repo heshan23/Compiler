@@ -4,7 +4,7 @@ Assignable:
 按照伪代码的思路比较难求，因此可以dfs，遍历到该节点便返回，这样所有只有该节点能遍历到的节点都不会被遍历
 
 原方法：
-```java
+```
 private void calcDom(BasicBlock start) {
         while (update(start)) {
             for (BasicBlock basicBlock : start.getNext()) {
@@ -29,3 +29,17 @@ private boolean update(BasicBlock it) {
     it.setDom(set);
     return set.size() != len;
 }
+
+
+
+```
+
+a+(b-a)
+(a+b)+(a-b)
+
+a-a
+(a+b)-a
+a-(a-b)
+
+
+

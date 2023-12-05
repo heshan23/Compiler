@@ -29,6 +29,11 @@ public class LVN {
             map = new HashMap<>();
             LVNVisit(function.getBasicBlocks().get(0));
         }
+        for (Function function : irModule.getFunctions()) {
+            for (BasicBlock bb : function.getBasicBlocks()) {
+                optimizeCalc(bb);
+            }
+        }
     }
 
     private void LVNVisit(BasicBlock entry) {
@@ -39,7 +44,7 @@ public class LVN {
             Instruction instr = it.next();
             String hash = getGVNHash(instr);
             if (hash == null) {
-                return;
+                continue;
             }
             if (map.containsKey(hash)) {
                 instr.replacedByNewVal(map.get(hash));
@@ -83,6 +88,13 @@ public class LVN {
                 instr.replacedByNewVal(ans);
                 instr.deleteUse();
                 it.remove();
+            } else {
+                Value ans = calcNoneCon(instr);
+                if (ans != null) {
+                    instr.replacedByNewVal(ans);
+                    instr.deleteUse();
+                    it.remove();
+                }
             }
         }
     }
@@ -100,8 +112,6 @@ public class LVN {
         }
         return new ConstInt(ans);
     }
-
-//    private Value calcNoneCon() {}
 
     private Value calcSingleCon(Value left, Value right, Operator op) {
         switch (op) {
@@ -131,6 +141,75 @@ public class LVN {
             }
         }
         return null;
+    }
+
+    private Value calcNoneCon(Instruction instr) {
+        BinaryInst cal = (BinaryInst) instr;
+        Value left = cal.lVal();
+        Value right = cal.rVal();
+        Operator op = cal.getOp();
+        switch (op) {
+            case Add -> {
+                if (left instanceof BinaryInst l) {
+                    if (l.getOp() == Operator.Sub && sameValue(l.rVal(), right)) {
+                        return l.lVal();
+                    }
+                }
+                if (right instanceof BinaryInst r) {
+                    if (r.getOp() == Operator.Sub && sameValue(left, r.rVal())) {
+                        return r.lVal();
+                    }
+                }
+                if (left instanceof BinaryInst l && right instanceof BinaryInst r) {
+                    if ((l.getOp() == Operator.Add && r.getOp() == Operator.Sub)
+                            || (l.getOp() == Operator.Sub && r.getOp() == Operator.Add)) {
+                        if (sameValue(l.rVal(), r.rVal())) {
+                            instr.deleteUse();
+                            instr.addOperand(l.lVal());
+                            instr.addOperand(r.lVal());
+                        }
+                    }
+                }
+            }
+            case Sub -> {
+                if (sameValue(left, right)) {
+                    return new ConstInt(0);
+                }
+                if (left instanceof BinaryInst l) {
+                    if (l.getOp() == Operator.Add) {
+                        if (sameValue(l.lVal(), right)) {
+                            return l.rVal();
+                        }
+                        if (sameValue(l.rVal(), right)) {
+                            return l.rVal();
+                        }
+                    }
+                }
+                if (right instanceof BinaryInst r) {
+                    if (r.getOp() == Operator.Sub && sameValue(left, r.lVal())) {
+                        return r.rVal();
+                    }
+                }
+            }
+            case SDiv -> {
+                if (sameValue(left, right)) {
+                    return new ConstInt(1);
+                }
+            }
+            case Mod -> {
+                if (sameValue(left, right)) {
+                    return new ConstInt(0);
+                }
+            }
+        }
+        return null;
+    }
+
+    private boolean sameValue(Value a, Value b) {
+        if (a instanceof ConstInt) {
+            return (b instanceof ConstInt) && ((ConstInt) a).getVal() == ((ConstInt) b).getVal();
+        }
+        return a == b;
     }
 
     private boolean isZero(Value value) {
