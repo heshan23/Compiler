@@ -8,7 +8,7 @@ public class ConstStr extends Const {
     private int length;
 
     public ConstStr(String value) {
-        super(value.replace("\n", "\\n"), new PointerType(IntegerType.i8));
+        super("\"" + value.replace("\n", "\\n") + "\"", new PointerType(IntegerType.i8));
         this.value = value.replace("\n", "\\0a") + "\\00";
         this.length = value.length() + 1;
     }

@@ -6,7 +6,6 @@ import IR.types.*;
 import IR.values.*;
 import IR.values.instructions.BinaryInst;
 import IR.values.instructions.CallInst;
-import IR.values.instructions.ConvInst;
 import IR.values.instructions.Instruction;
 import IR.values.instructions.men.GEPInst;
 import IR.values.instructions.men.StoreInst;
@@ -16,8 +15,12 @@ import IR.values.instructions.terminator.BrInst;
 import IR.values.instructions.terminator.RetInst;
 import backend.Symbol.MipsSymbol;
 import backend.Symbol.MipsSymbolTable;
+import pass.Analysis.MoveInst;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 
 public class MIPSGenerator {
     private static final MIPSGenerator mipsGenerator = new MIPSGenerator();
@@ -27,6 +30,8 @@ public class MIPSGenerator {
     }
 
     private final MipsSymbolTable symbolTables = new MipsSymbolTable();
+    private final List<Register> tmp_reg = Arrays.asList(Register.K0, Register.K1, Register.V0, Register.V1);
+    int tmp_ptr = 0;
     Function curFunc;
 
     public void genMIPS() {
@@ -35,12 +40,12 @@ public class MIPSGenerator {
         genMacro();
         OutputHandler.genMIPS(".data");
         for (GlobalVar globalVar : irModule.getGlobalVars()) {
-            getGp(globalVar.getName(), globalVar);
+            //getGp(globalVar.getName(), globalVar);
             genGlobalVar(globalVar);
         }
         OutputHandler.genMIPS(".text");
         jal("main");
-        li("$v0", 10);
+        li(Register.V0, 10);
         syscall();
         for (Function function : irModule.getFunctions()) {
             curFunc = function;
@@ -48,10 +53,10 @@ public class MIPSGenerator {
             OutputHandler.genMIPS(function.getName() + ":");
             int rec = function.getArguments().size();
             for (Argument arg : function.getArguments()) {
-                lw("$t0", "$sp", 4 * rec);
+                lw(Register.K0, Register.SP, 4 * rec);
                 rec--;
                 getSp(arg.getName(), arg);
-                sw("$t0", "$sp", getOff(arg.getName()));
+                sw(Register.K0, Register.SP, getOff(arg.getName()));
             }
             for (BasicBlock basicBlock : function.getBasicBlocks()) {
                 OutputHandler.genMIPS(blockLabel(function, basicBlock) + ":");
@@ -86,6 +91,9 @@ public class MIPSGenerator {
                 ArrayType arrayType = (ArrayType) ((PointerType) globalVar.getType()).getTargetType();
                 ans.append(listGlobalArray(arrayType, constArray));
             }
+        } else if (globalVar.getValue() instanceof ConstStr constStr) {
+            ans.append(": .asciiz ");
+            ans.append(constStr.getName());
         } else {
             ans.append(": .word ");
             ans.append(globalVar.getValue().getName());
@@ -122,7 +130,7 @@ public class MIPSGenerator {
 
     private void genGetInt() {
         OutputHandler.genMIPS(".macro getInt");
-        li("$v0", 5);
+        li(Register.V0, 5);
         syscall();
         OutputHandler.genMIPS(".end_macro");
         //返回值在$v0
@@ -131,7 +139,7 @@ public class MIPSGenerator {
     private void genPutInt() {
         //move("$a0", "%in");
         OutputHandler.genMIPS(".macro putInt");
-        li("$v0", 1);
+        li(Register.V0, 1);
         syscall();
         OutputHandler.genMIPS(".end_macro");
     }
@@ -139,7 +147,7 @@ public class MIPSGenerator {
     private void genPutCh() {
         //move($a0,%in)
         OutputHandler.genMIPS(".macro putCh");
-        li("$v0", 11);
+        li(Register.V0, 11);
         syscall();
         OutputHandler.genMIPS(".end_macro");
     }
@@ -147,7 +155,7 @@ public class MIPSGenerator {
     private void genPutStr() {
         //move($a0,%addr)
         OutputHandler.genMIPS(".macro putStr");
-        li("$v0", 4);
+        li(Register.V0, 4);
         syscall();
         OutputHandler.genMIPS(".end_macro");
     }
@@ -169,8 +177,8 @@ public class MIPSGenerator {
             parseBinary(binaryInst);
         } else if (ir instanceof CallInst callInst) {
             parseCall(callInst);
-        } else if (ir instanceof ConvInst convInst) {
-            parseConvInst(convInst);
+        } else if (ir instanceof MoveInst moveInst) {
+            parseMoveInst(moveInst);
         }
     }
 
@@ -195,52 +203,58 @@ public class MIPSGenerator {
         Value pointer = gepInst.getPointer();
         Type type = pointer.getType();
         Type target = ((PointerType) type).getTargetType();
+        if (target instanceof ArrayType arrayType && arrayType.getElementType() == IntegerType.i8) {
+            return;
+        }
         ArrayList<Value> indices = gepInst.getIndices();
-        load("$t0", pointer.getName());
+        Register keep = load(pointer);
+        int immOff = 0;
         for (Value value : indices) {
             int base;
-            int off;
             if (target instanceof ArrayType) {
                 base = ((ArrayType) target).getCapacity() * 4;
             } else {
                 base = 4;
             }
             if (value instanceof ConstInt) {
-                off = ((ConstInt) value).getVal() * base;
-                OutputHandler.genMIPS(String.format("addiu $t0, $t0, %d", off));
+                immOff += ((ConstInt) value).getVal() * base;
             } else {
-                li("$t1", base);
-                load("$t2", value.getName());
-                OutputHandler.genMIPS("mult $t1, $t2");
-                mflo("$t1");
-                OutputHandler.genMIPS("addu $t0, $t0, $t1");
+                Register reg1 = getTmpReg();
+                li(reg1, base);
+                Register reg2 = load(value);
+                OutputHandler.genMIPS(String.format("mult %s, %s", reg1, reg2));//k1*reg
+                mflo(reg1);
+                OutputHandler.genMIPS(String.format("addu %s, %s, %s", keep, keep, reg1));
             }
             if (target instanceof ArrayType arrayType) {
                 target = arrayType.getElementType();
             }
         }
-        store("$t0", gepInst.getName());
+        if (immOff != 0) {
+            OutputHandler.genMIPS(String.format("addiu %s, %s, %d", keep, keep, immOff));
+        }
+        store(keep, gepInst);
     }
 
     private void parseLoadInst(LoadInst loadInst) {
         if (loadInst.pointer() instanceof GEPInst) {
-            load("$t0", loadInst.pointer().getName());
-            lw("$t0", "$t0", 0);
-            store("$t0", loadInst.getName());
+            Register reg = load(loadInst.pointer());
+            lw(reg, reg, 0);
+            store(reg, loadInst);
         } else {
-            load("$t0", loadInst.pointer().getName());
-            store("$t0", loadInst.getName());
+            Register reg = load(loadInst.pointer());
+            store(reg, loadInst);
         }
     }
 
     private void parseStoreInst(StoreInst storeInst) {
         if (storeInst.getPtr() instanceof GEPInst) {
-            load("$t0", storeInst.getVal().getName());
-            load("$t1", storeInst.getPtr().getName());
-            sw("$t0", "$t1", 0);
+            Register reg1 = load(storeInst.getVal());
+            Register reg2 = load(storeInst.getPtr());
+            sw(reg1, reg2, 0);
         } else {
-            load("$t0", storeInst.getVal().getName());
-            store("$t0", storeInst.getPtr().getName());
+            Register reg = load(storeInst.getVal());
+            store(reg, storeInst.getPtr());
         }
     }
 
@@ -248,92 +262,107 @@ public class MIPSGenerator {
         if (brInst.noneCond()) {
             j(blockLabel(brInst.getTrueBlock()));
         } else {
-            load("$t0", brInst.getCond().getName());
-            bgtz("$t0", blockLabel(brInst.getTrueBlock()));
+            Register reg = load(brInst.getCond());
+            bgtz(reg, blockLabel(brInst.getTrueBlock()));
             j(blockLabel(brInst.getFalseBlock()));
         }
     }
 
     private void parseRet(RetInst retInst) {
         if (!(retInst.getType() == VoidType.voidType)) {
-            load("$v0", retInst.getOperands().get(0).getName());
+            assign(Register.V0, retInst.getOperands().get(0));
         }
-        jr("$ra");
+        jr(Register.RA);
     }
 
     private void parseBinary(BinaryInst binaryInst) {
-        String ans = binaryInst.getName();
-        String lVal = binaryInst.lVal().getName();
-        String rVal = binaryInst.rVal().getName();
+        Value lVal = binaryInst.lVal();
+        Value rVal = binaryInst.rVal();
         switch (binaryInst.getOp()) {
-            case Add -> add(ans, lVal, rVal);
-            case Sub -> sub(ans, lVal, rVal);
-            case Mul -> mul(ans, lVal, rVal);
-            case SDiv -> div(ans, lVal, rVal);
-            case Mod -> mod(ans, lVal, rVal);
-            case Sgt -> cmp("sgt", ans, lVal, rVal);
-            case Sge -> cmp("sge", ans, lVal, rVal);
-            case Slt -> cmp("slt", ans, lVal, rVal);
-            case Sle -> cmp("sle", ans, lVal, rVal);
-            case Ne -> cmp("sne", ans, lVal, rVal);
-            case Eq -> cmp("seq", ans, lVal, rVal);
+            case Add -> add(binaryInst, lVal, rVal);
+            case Sub -> sub(binaryInst, lVal, rVal);
+            case Mul -> mul(binaryInst, lVal, rVal);
+            case SDiv -> div(binaryInst, lVal, rVal);
+            case Mod -> mod(binaryInst, lVal, rVal);
+            case Sgt -> cmp("sgt", binaryInst, lVal, rVal);
+            case Sge -> cmp("sge", binaryInst, lVal, rVal);
+            case Slt -> cmp("slt", binaryInst, lVal, rVal);
+            case Sle -> cmp("sle", binaryInst, lVal, rVal);
+            case Ne -> cmp("sne", binaryInst, lVal, rVal);
+            case Eq -> cmp("seq", binaryInst, lVal, rVal);
         }
     }
 
     private void parseCall(CallInst callInst) {
         Function function = callInst.getFunction();
-        String caller = callInst.getName();
         if (function.isLibrary()) {
             switch (function.getName()) {
                 case "getint" -> {
-                    genInt();
-                    sw("$v0", "$sp", getOff(caller));
+                    OutputHandler.genMIPS("getInt");
+                    store(Register.V0, callInst);
                 }
                 case "putint" -> {
-                    load("$a0", callInst.getOperands().get(1).getName());
-                    putInt();
+                    assign(Register.A0, callInst.getOperands().get(1));
+                    OutputHandler.genMIPS("putInt");
                 }
                 case "putch" -> {
-                    load("$a0", callInst.getOperands().get(1).getName());
-                    putCh();
-                }//case "putstr" -> ;
+                    assign(Register.A0, callInst.getOperands().get(1));
+                    OutputHandler.genMIPS("putCh");
+                }
+                case "putstr" -> {
+                    assign(Register.A0, ((GEPInst) callInst.getOperands().get(1)).getPointer());
+                    OutputHandler.genMIPS("putStr");
+                }
             }
         } else {
-            sw("$ra", "$sp", spOff);
+            sw(Register.RA, Register.SP, spOff);
+            HashSet<Register> used = new HashSet<>(curFunc.getVar2reg().values());
+            used.retainAll(callInst.getFunction().getVar2reg().values());
+            ArrayList<Register> save = new ArrayList<>(used);
+            //保存寄存器的值
             int rec = 1;
+            for (Register reg : save) {
+                sw(reg, Register.SP, spOff - 4 * rec);
+                rec++;
+            }
+            //压入参数
             for (int i = 1; i < callInst.getOperands().size(); i++) {
-                load("$t0", callInst.getOperands().get(i).getName());
-                sw("$t0", "$sp", spOff - 4 * rec);
+                Register reg = load(callInst.getOperands().get(i));
+                sw(reg, Register.SP, spOff - 4 * rec);
                 rec++;
             }
             OutputHandler.genMIPS(String.format("addiu $sp, $sp, %d", spOff - 4 * rec));
             jal(function.getName());
             //OutputHandler.genMIPS("nop");关闭延迟槽
             OutputHandler.genMIPS(String.format("addiu $sp, $sp, %d", -spOff + 4 * rec));
-            lw("$ra", "$sp", spOff);
+            lw(Register.RA, Register.SP, spOff);
+            rec = 1;
+            for (Register reg : save) {
+                lw(reg, Register.SP, spOff - 4 * rec);
+                rec++;
+            }
             if (!(callInst.getType() == VoidType.voidType)) {
-                store("$v0", callInst.getName());
+                store(Register.V0, callInst);
             }
         }
-
     }
 
-    private void parseConvInst(ConvInst convInst) {
-        load("$t0", convInst.getValue().getName());
-        store("$t0", convInst.getName());
+    private void parseMoveInst(MoveInst moveInst) {
+        Register reg1 = load(moveInst.getVal());
+        store(reg1, moveInst.getTarget());
     }
 
-    private void li(String reg, String val) {
+    private void li(Register reg, String val) {
         String ans = String.format("li %s, %s", reg, val);
         OutputHandler.genMIPS(ans);
     }
 
-    private void li(String reg, int val) {
+    private void li(Register reg, int val) {
         String ans = String.format("li %s, %d", reg, val);
         OutputHandler.genMIPS(ans);
     }
 
-    private void la(String reg, String val) {
+    private void la(Register reg, String val) {
         OutputHandler.genMIPS(String.format("la %s, %s", reg, val));
     }
 
@@ -349,115 +378,178 @@ public class MIPSGenerator {
         OutputHandler.genMIPS("j " + label);
     }
 
-    private void jr(String reg) {
+    private void jr(Register reg) {
         OutputHandler.genMIPS(String.format("jr %s", reg));
     }
 
-    private void bgtz(String reg, String label) {
+    private void bgtz(Register reg, String label) {
         OutputHandler.genMIPS("bgtz " + reg + ", " + label);
     }
 
-    private void move(String reg, String valReg) {
+    private void move(Register reg, Register valReg) {
+        if (reg == valReg) {
+            return;
+        }
         OutputHandler.genMIPS(String.format("move %s, %s", reg, valReg));
     }
 
-    private void genInt() {
-        OutputHandler.genMIPS("getInt");
+    private void add(Value ans, Value lVal, Value rVal) {
+        Register reg1 = load(lVal);
+        Register reg2 = load(rVal);
+        Register target = getReg(ans);
+        boolean inSp = false;
+        if (target == null) {
+            inSp = true;
+            target = getTmpReg();
+        }
+        OutputHandler.genMIPS(String.format("addu %s, %s, %s", target, reg1, reg2));
+        if (inSp) {
+            store(target, ans);
+        }
     }
 
-    private void putInt() {
-        OutputHandler.genMIPS("putInt");
+    private void sub(Value ans, Value lVal, Value rVal) {
+        Register reg1 = load(lVal);
+        Register reg2 = load(rVal);
+        Register target = getReg(ans);
+        boolean inSp = false;
+        if (target == null) {
+            inSp = true;
+            target = getTmpReg();
+        }
+        OutputHandler.genMIPS(String.format("subu %s, %s, %s", target, reg1, reg2));
+        if (inSp) {
+            store(target, ans);
+        }
     }
 
-    private void putCh() {
-        OutputHandler.genMIPS("putCh");
+    private void mul(Value ans, Value lVal, Value rVal) {
+        Register reg1 = load(lVal);
+        Register reg2 = load(rVal);
+        Register target = getReg(ans);
+        boolean inSp = false;
+        if (target == null) {
+            inSp = true;
+            target = getTmpReg();
+        }
+        OutputHandler.genMIPS(String.format("mult %s, %s", reg1, reg2));
+        mflo(target);
+        if (inSp) {
+            store(target, ans);
+        }
     }
 
-    private void putStr() {
-        OutputHandler.genMIPS("putStr");
+    private void div(Value ans, Value lVal, Value rVal) {
+        Register reg1 = load(lVal);
+        Register reg2 = load(rVal);
+        Register target = getReg(ans);
+        boolean inSp = false;
+        if (target == null) {
+            inSp = true;
+            target = getTmpReg();
+        }
+        OutputHandler.genMIPS(String.format("div %s, %s", reg1, reg2));
+        mflo(target);
+        if (inSp) {
+            store(target, ans);
+        }
     }
 
-    private void add(String ans, String lVal, String rVal) {
-        load("$t1", lVal);
-        load("$t2", rVal);
-        OutputHandler.genMIPS(String.format("addu %s, %s, %s", "$t0", "$t1", "$t2"));
-        store("$t0", ans);
+    private void mod(Value ans, Value lVal, Value rVal) {
+        Register reg1 = load(lVal);
+        Register reg2 = load(rVal);
+        Register target = getReg(ans);
+        boolean inSp = false;
+        if (target == null) {
+            inSp = true;
+            target = getTmpReg();
+        }
+        OutputHandler.genMIPS(String.format("div %s, %s", reg1, reg2));
+        mfhi(target);
+        if (inSp) {
+            store(target, ans);
+        }
     }
 
-    private void sub(String ans, String lVal, String rVal) {
-        load("$t1", lVal);
-        load("$t2", rVal);
-        OutputHandler.genMIPS(String.format("subu %s, %s, %s", "$t0", "$t1", "$t2"));
-        store("$t0", ans);
+    private void cmp(String ins, Value ans, Value lVal, Value rVal) {
+        Register reg1 = load(lVal);
+        Register reg2 = load(rVal);
+        Register target = getReg(ans);
+        boolean inSp = false;
+        if (target == null) {
+            inSp = true;
+            target = getTmpReg();
+        }
+        OutputHandler.genMIPS(ins + String.format(" %s, %s, %s", target, reg1, reg2));
+        if (inSp) {
+            store(target, ans);
+        }
     }
 
-    private void mul(String ans, String lVal, String rVal) {
-        load("$t1", lVal);
-        load("$t2", rVal);
-        OutputHandler.genMIPS(String.format("mult %s, %s", "$t1", "$t2"));
-        mflo("$t0");
-        store("$t0", ans);
-    }
-
-    private void div(String ans, String lVal, String rVal) {
-        load("$t1", lVal);
-        load("$t2", rVal);
-        OutputHandler.genMIPS(String.format("div %s, %s", "$t1", "$t2"));
-        mflo("$t0");
-        store("$t0", ans);
-    }
-
-    private void mod(String ans, String lVal, String rVal) {
-        load("$t1", lVal);
-        load("$t2", rVal);
-        OutputHandler.genMIPS(String.format("div %s, %s", "$t1", "$t2"));
-        mfhi("$t0");
-        store("$t0", ans);
-    }
-
-    private void load(String reg, String name) {
-        if (isNumber(name)) {
-            li(reg, name);
-        } else if (getVal(name) instanceof GlobalVar globalVar) {
-            la(reg, globalVarLabel(name));
+    private void assign(Register reg, Value value) {
+        if (getReg(value) != null) {
+            move(reg, getReg(value));
+            return;
+        }
+        if (value instanceof ConstInt) {
+            li(reg, value.getName());
+        } else if (value instanceof GlobalVar globalVar) {
+            la(reg, globalVarLabel(value.getName()));
             if (globalVar.getValue() instanceof ConstInt) {
-                lw(reg, reg, 0);//int
+                lw(reg, reg, 0);
             }
         } else {
-            lw(reg, "$sp", getOff(name));
+            lw(reg, Register.SP, getOff(value.getName()));
         }
     }
 
-    private void lw(String reg, String name, int off) {
-        OutputHandler.genMIPS(String.format("lw %s, %s(%s)", reg, off, name));
-    }
-
-    private void store(String reg, String name) {
-        if (getVal(name) instanceof GlobalVar) {
-            la("$t1", globalVarLabel(name));
-            sw(reg, "$t1", 0);
+    private Register load(Value value) {
+        Register ans = getReg(value);
+        if (ans != null) {
+            return ans;
+        }
+        ans = getTmpReg();
+        if (value instanceof ConstInt) {
+            li(ans, value.getName());
+        } else if (value instanceof GlobalVar globalVar) {
+            la(ans, globalVarLabel(value.getName()));
+            if (globalVar.getValue() instanceof ConstInt) {
+                lw(ans, ans, 0);
+            }
         } else {
-            sw(reg, "$sp", getOff(name));
+            lw(ans, Register.SP, getOff(value.getName()));
+        }
+        return ans;
+    }
+
+    private void lw(Register reg, Register base, int off) {
+        OutputHandler.genMIPS(String.format("lw %s, %s(%s)", reg, off, base));
+    }
+
+    private void store(Register reg, Value value) {
+        if (getReg(value) != null) {
+            move(getReg(value), reg);
+            return;
+        }
+        if (value instanceof GlobalVar) {
+            Register target = getTmpReg();
+            la(target, globalVarLabel(value.getName()));
+            sw(reg, target, 0);
+        } else {
+            sw(reg, Register.SP, getOff(value.getName()));
         }
     }
 
-    private void sw(String reg, String base, int off) {
+    private void sw(Register reg, Register base, int off) {
         OutputHandler.genMIPS(String.format("sw %s, %s(%s)", reg, off, base));
     }
 
-    private void mfhi(String reg) {
+    private void mfhi(Register reg) {
         OutputHandler.genMIPS("mfhi " + reg);
     }
 
-    private void mflo(String reg) {
+    private void mflo(Register reg) {
         OutputHandler.genMIPS("mflo " + reg);
-    }
-
-    private void cmp(String ins, String ans, String reg1, String reg2) {
-        load("$t1", reg1);
-        load("$t2", reg2);
-        OutputHandler.genMIPS(ins + " $t0, $t1, $t2");
-        store("$t0", ans);
     }
 
     private boolean isNumber(String name) {
@@ -470,7 +562,7 @@ public class MIPSGenerator {
     栈的调用：spOff指向将要存的值，spOff+4指向上一个存入的的值
     */
     private void getSp(String name, Value value) {
-        if (name.isEmpty() || symbolTables.contains(name)) {
+        if (name.isEmpty() || symbolTables.contains(name) || getReg(value) != null) {
             return;
         }
         symbolTables.addSymbol(name, new MipsSymbol("$sp", spOff, value));
@@ -483,8 +575,8 @@ public class MIPSGenerator {
         }
         getSp(name, value);
         spOff -= off;
-        OutputHandler.genMIPS("addiu $t0, $sp, " + (spOff + 4));
-        store("$t0", name);
+        OutputHandler.genMIPS("addiu $k0, $sp, " + (spOff + 4));
+        store(Register.K0, value);
     }
 
     private int getOff(String name) {
@@ -495,10 +587,13 @@ public class MIPSGenerator {
         return symbolTables.getSymbol(name).getVal();
     }
 
-    private void getGp(String name, Value value) {
-        if (name.isEmpty() || symbolTables.contains(name)) {
-            return;
-        }
-        symbolTables.addSymbol(name, new MipsSymbol("$gp", 0, value));
+    private Register getReg(Value value) {
+        if (curFunc.getVar2reg().containsKey(value)) return curFunc.getVar2reg().get(value);
+        return null;
+    }
+
+    private Register getTmpReg() {
+        if (tmp_ptr >= tmp_reg.size()) tmp_ptr = 0;
+        return tmp_reg.get(tmp_ptr++);
     }
 }

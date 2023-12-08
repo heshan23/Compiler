@@ -5,10 +5,8 @@ import IR.types.PointerType;
 import IR.values.*;
 import IR.values.instructions.CallInst;
 import IR.values.instructions.Instruction;
-import IR.values.instructions.men.PhiInst;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Stack;
 
 public class FuncAnalysis {

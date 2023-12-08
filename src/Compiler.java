@@ -6,7 +6,10 @@ import error.ErrorHandler;
 import frontend.Lexer;
 import frontend.Parser;
 import node.CompUnit;
+import pass.Analysis.DelRedundantInst;
+import pass.Analysis.RemovePhi;
 import pass.PassModule;
+import pass.RegAlloc;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,14 +32,21 @@ public class Compiler {
         if (Config.genLLVM) {
             Visitor visitor = new Visitor();
             visitor.visitCompUnit(compUnit);
-            Config.outLLVM = Config.optimize ? Config.originLLVM : Config.llvmPath;
+            Config.outLLVM = Config.optimize ? Config.originLLVM : Config.ansLLVM;
             IRModule.getInstance().genLLVm();
             if (Config.optimize) {
                 PassModule.getInstance().run(IRModule.getInstance());
-                Config.outLLVM = Config.llvmPath;
+                Config.setOutLLVM(Config.ansLLVM);
                 IRModule.getInstance().genLLVm();
             }
             if (Config.genMIPS) {
+                if (Config.optimize) {
+                    new DelRedundantInst(IRModule.getInstance()).run();
+                    new RegAlloc(IRModule.getInstance()).run();
+                    new RemovePhi(IRModule.getInstance()).run();
+                    Config.setOutLLVM(Config.backLLVM);
+                    IRModule.getInstance().genLLVm();
+                }
                 MIPSGenerator.getInstance().genMIPS();
             }
         }

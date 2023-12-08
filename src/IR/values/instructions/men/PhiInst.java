@@ -24,6 +24,10 @@ public class PhiInst extends MemInst {
         addOperand(value);
     }
 
+    public ArrayList<BasicBlock> getBBs() {
+        return bbs;
+    }
+
     @Override
     public String toString() {
         StringBuilder ans = new StringBuilder(getName() + " = phi " + getType());

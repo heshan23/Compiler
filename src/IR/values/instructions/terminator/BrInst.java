@@ -30,9 +30,17 @@ public class BrInst extends TerminatorInst {
         }
     }
 
+    public void setTrueBLock(BasicBlock trueBlock) {
+        getOperands().set(1, trueBlock);
+    }
+
     public BasicBlock getFalseBlock() {
         //assert !noneCond();
         return (BasicBlock) getOperands().get(2);
+    }
+
+    public void setFalseBlock(BasicBlock falseBlock) {
+        getOperands().set(2, falseBlock);
     }
 
     public Value getCond() {

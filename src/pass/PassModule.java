@@ -17,7 +17,6 @@ public class PassModule {
         new DelDeadCode(irModule).run();
         new LVN(irModule).run();
         new DelDeadCode(irModule).run();
-        //new RemovePhi(irModule).run();
         irModule.refreshName();
     }
 }

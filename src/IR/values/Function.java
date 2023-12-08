@@ -6,14 +6,18 @@ import IR.IRModule;
 import IR.types.FuncType;
 import IR.types.IntegerType;
 import IR.types.Type;
+import backend.Register;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Function extends Value {
     private final boolean isLibrary;
     private final ArrayList<Argument> arguments;
     private final ArrayList<BasicBlock> basicBlocks = new ArrayList<>();
     private boolean hasSideEffect = false;
+    /*register alloc*/
+    private HashMap<Value, Register> var2reg;
 
     public Function(String name, Type type, boolean isLibrary) {
         super(name, type);
@@ -69,6 +73,14 @@ public class Function extends Value {
 
     public Argument getKArg(int k) {
         return arguments.get(k);
+    }
+
+    public void setVar2reg(HashMap<Value, Register> var2reg) {
+        this.var2reg = var2reg;
+    }
+
+    public HashMap<Value, Register> getVar2reg() {
+        return var2reg;
     }
 
     public void genLLVM() {

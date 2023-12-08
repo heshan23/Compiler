@@ -1,21 +1,20 @@
 package IR.values;
 
 
+import IR.types.IntegerType;
 import IR.types.Type;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class Value {
     private String name;
     private Type type;
-    private final ArrayList<Use> useList;
+    private final ArrayList<Use> useList = new ArrayList<>();
     public static int valNumber = 0;
 
     public Value(String name, Type type) {
         this.name = name;
         this.type = type;
-        this.useList = new ArrayList<>();
     }
 
     public String getName() {
@@ -56,6 +55,10 @@ public class Value {
 
     public boolean unUsed() {
         return useList.isEmpty();
+    }
+
+    public static Value newTmpValue(String name) {
+        return new Value("tmp_" + name, IntegerType.i32);
     }
 
     @Override

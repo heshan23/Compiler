@@ -33,6 +33,10 @@ public class BasicBlock extends Value {
         return instructions;
     }
 
+    public void giveName() {
+        setName("mid" + valNumber++);
+    }
+
     public void refill(Function function) {
         setName(String.valueOf(valNumber++));
         setType(new LabelType());
@@ -108,6 +112,14 @@ public class BasicBlock extends Value {
 
     public HashSet<BasicBlock> getDF() {
         return DF;
+    }
+
+    public Instruction getFirstInstr() {
+        return instructions.get(0);
+    }
+
+    public Instruction getLastInst() {
+        return instructions.get(instructions.size() - 1);
     }
 
     public void genLLVM() {

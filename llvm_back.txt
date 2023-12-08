@@ -9,9 +9,9 @@ declare void @putstr(i8*)
 define dso_local i32 @main() {
 0:
 	%1 = call i32 @getint() 
+	move %3 <- 2
 	br label %2
 2:
-	%3 = phi i32 [ 2, %0 ], [ %7, %8 ]
 	%4 = icmp slt i32 %3, %1
 	br i1 %4, label %5, label %9
 5:
@@ -20,29 +20,33 @@ define dso_local i32 @main() {
 	%7 = add i32 %3, 1
 	br label %8
 8:
+	move %3 <- %7
 	br label %2
 9:
+	move %11 <- 0
+	move %12 <- 2
 	br label %10
 10:
-	%11 = phi i32 [ 0, %9 ], [ %22, %44 ]
-	%12 = phi i32 [ 2, %9 ], [ %43, %44 ]
 	%13 = icmp slt i32 %12, %1
 	br i1 %13, label %14, label %45
 14:
 	%15 = getelementptr [510 x i32], [510 x i32]* @a, i32 0, i32 %12
 	%16 = load i32, i32* %15
 	%17 = icmp ne i32 %16, 0
-	br i1 %17, label %18, label %21
+	br i1 %17, label %18, label %mid73
 18:
 	%19 = getelementptr [510 x i32], [510 x i32]* @prime, i32 0, i32 %11
 	store i32 %12, i32* %19
 	%20 = add i32 %11, 1
+	move %22 <- %20
+	br label %21
+mid73:
+	move %22 <- %11
 	br label %21
 21:
-	%22 = phi i32 [ %11, %14 ], [ %20, %18 ]
+	move %24 <- 0
 	br label %23
 23:
-	%24 = phi i32 [ 0, %21 ], [ %40, %41 ]
 	%25 = icmp slt i32 %24, %22
 	br i1 %25, label %26, label %42
 26:
@@ -66,16 +70,20 @@ define dso_local i32 @main() {
 	%40 = add i32 %24, 1
 	br label %41
 41:
+	move %24 <- %40
 	br label %23
 42:
 	%43 = add i32 %12, 1
 	br label %44
 44:
+	move tmp_%43 <- %43
+	move %11 <- %22
+	move %12 <- tmp_%43
 	br label %10
 45:
+	move %47 <- 0
 	br label %46
 46:
-	%47 = phi i32 [ 0, %45 ], [ %67, %71 ]
 	%48 = icmp ne i32 114514, 0
 	br i1 %48, label %49, label %72
 49:
@@ -110,6 +118,7 @@ define dso_local i32 @main() {
 70:
 	br label %72
 71:
+	move %47 <- %67
 	br label %46
 72:
 	ret i32 0

@@ -1,0 +1,318 @@
+.macro getInt
+li $v0, 5
+syscall
+.end_macro
+.macro putInt
+li $v0, 1
+syscall
+.end_macro
+.macro putCh
+li $v0, 11
+syscall
+.end_macro
+.macro putStr
+li $v0, 4
+syscall
+.end_macro
+.data
+a: .space 2040
+prime: .space 2040
+reflect1: .word -711942876,-1060809599,1758839997,423174272,1412407466,375872692,1543568839,915987033,698198080,-2143283456,2059223660,-34179219,378910912,1498631475,-1853883889,1640319187,
+reflect2: .word -1152785601,1891446969,938484211,-1596516698,1681072330,128222498,1090169129,-347746822,-326257601,-1366930863,-823961496,2103453081,-402114823,2139806715,-732814375,1302967469,1623817872,898372270,-812618050,-1403178881,-1776328495,958769364,47496017,-1384738865,1751940200,
+.text
+jal main
+li $v0, 10
+syscall
+main:
+main_0:
+#%1 = call i32 @getint() 
+getInt
+move $t0, $v0
+#move %3 <- 2
+li $k0, 2
+move $t1, $k0
+#br label %2
+j main_2
+main_2:
+#%4 = icmp slt i32 %3, %1
+slt $t2, $t1, $t0
+#br i1 %4, label %5, label %9
+bgtz $t2, main_5
+j main_9
+main_5:
+#%6 = getelementptr [510 x i32], [510 x i32]* @a, i32 0, i32 %3
+la $k1, a
+li $v0, 4
+mult $v0, $t1
+mflo $v0
+addu $k1, $k1, $v0
+move $t2, $k1
+#store i32 1, i32* %6
+li $v1, 1
+sw $v1, 0($t2)
+#%7 = add i32 %3, 1
+li $k0, 1
+addu $t1, $t1, $k0
+#br label %8
+j main_8
+main_8:
+#move %3 <- %7
+#br label %2
+j main_2
+main_9:
+#move %11 <- 0
+li $k1, 0
+move $t1, $k1
+#move %12 <- 2
+li $v0, 2
+move $t2, $v0
+#br label %10
+j main_10
+main_10:
+#%13 = icmp slt i32 %12, %1
+slt $t3, $t2, $t0
+#br i1 %13, label %14, label %45
+bgtz $t3, main_14
+j main_45
+main_14:
+#%15 = getelementptr [510 x i32], [510 x i32]* @a, i32 0, i32 %12
+la $v1, a
+li $k0, 4
+mult $k0, $t2
+mflo $k0
+addu $v1, $v1, $k0
+move $t3, $v1
+#%16 = load i32, i32* %15
+lw $t3, 0($t3)
+#%17 = icmp ne i32 %16, 0
+li $k1, 0
+sne $t3, $t3, $k1
+#br i1 %17, label %18, label %mid73
+bgtz $t3, main_18
+j main_mid73
+main_18:
+#%19 = getelementptr [510 x i32], [510 x i32]* @prime, i32 0, i32 %11
+la $v0, prime
+li $v1, 4
+mult $v1, $t1
+mflo $v1
+addu $v0, $v0, $v1
+move $t3, $v0
+#store i32 %12, i32* %19
+sw $t2, 0($t3)
+#%20 = add i32 %11, 1
+li $k0, 1
+addu $t3, $t1, $k0
+#move %22 <- %20
+#br label %21
+j main_21
+main_mid73:
+#move %22 <- %11
+move $t3, $t1
+#br label %21
+j main_21
+main_21:
+#move %24 <- 0
+li $k1, 0
+move $t1, $k1
+#br label %23
+j main_23
+main_23:
+#%25 = icmp slt i32 %24, %22
+slt $t4, $t1, $t3
+#br i1 %25, label %26, label %42
+bgtz $t4, main_26
+j main_42
+main_26:
+#%27 = getelementptr [510 x i32], [510 x i32]* @prime, i32 0, i32 %24
+la $v0, prime
+li $v1, 4
+mult $v1, $t1
+mflo $v1
+addu $v0, $v0, $v1
+move $t4, $v0
+#%28 = load i32, i32* %27
+lw $t4, 0($t4)
+move $t5, $t4
+#%29 = mul i32 %12, %28
+mult $t2, $t5
+mflo $t5
+#%30 = icmp sle i32 %29, %1
+sle $t5, $t5, $t0
+#br i1 %30, label %31, label %42
+bgtz $t5, main_31
+j main_42
+main_31:
+#%32 = load i32, i32* %27
+lw $t4, 0($t4)
+move $t5, $t4
+#%33 = mul i32 %12, %32
+mult $t2, $t5
+mflo $t5
+#%34 = getelementptr [510 x i32], [510 x i32]* @a, i32 0, i32 %33
+la $k0, a
+li $k1, 4
+mult $k1, $t5
+mflo $k1
+addu $k0, $k0, $k1
+move $t5, $k0
+#store i32 0, i32* %34
+li $v0, 0
+sw $v0, 0($t5)
+#%35 = load i32, i32* %27
+lw $t4, 0($t4)
+#%36 = srem i32 %12, %35
+div $t2, $t4
+mfhi $t4
+#%37 = icmp eq i32 %36, 0
+li $v1, 0
+seq $t4, $t4, $v1
+#br i1 %37, label %38, label %39
+bgtz $t4, main_38
+j main_39
+main_38:
+#br label %42
+j main_42
+main_39:
+#%40 = add i32 %24, 1
+li $k0, 1
+addu $t1, $t1, $k0
+#br label %41
+j main_41
+main_41:
+#move %24 <- %40
+#br label %23
+j main_23
+main_42:
+#%43 = add i32 %12, 1
+li $k1, 1
+addu $t1, $t2, $k1
+#br label %44
+j main_44
+main_44:
+#move tmp_%43 <- %43
+sw $t1, -20($sp)
+#move %11 <- %22
+move $t1, $t3
+#move %12 <- tmp_%43
+lw $v0, -20($sp)
+move $t2, $v0
+#br label %10
+j main_10
+main_45:
+#move %47 <- 0
+li $v1, 0
+move $t1, $v1
+#br label %46
+j main_46
+main_46:
+#%48 = icmp ne i32 114514, 0
+li $k0, 114514
+li $k1, 0
+sne $t2, $k0, $k1
+#br i1 %48, label %49, label %72
+bgtz $t2, main_49
+j main_72
+main_49:
+#%50 = getelementptr [510 x i32], [510 x i32]* @a, i32 0, i32 %47
+la $v0, a
+li $v1, 4
+mult $v1, $t1
+mflo $v1
+addu $v0, $v0, $v1
+move $t2, $v0
+#%51 = load i32, i32* %50
+lw $t2, 0($t2)
+#%52 = icmp ne i32 %51, 0
+li $k0, 0
+sne $t2, $t2, $k0
+#br i1 %52, label %53, label %66
+bgtz $t2, main_53
+j main_66
+main_53:
+#call void @putint(i32 %47)
+move $a0, $t1
+putInt
+#call void @putch(i32 32)
+li $a0, 32
+putCh
+#%54 = srem i32 %47, 2
+li $k1, 2
+div $t1, $k1
+mfhi $t2
+#%55 = srem i32 %47, 16
+li $v0, 16
+div $t1, $v0
+mfhi $t3
+#%56 = getelementptr [16 x i32], [16 x i32]* @reflect1, i32 0, i32 %55
+la $v1, reflect1
+li $k0, 4
+mult $k0, $t3
+mflo $k0
+addu $v1, $v1, $k0
+move $t3, $v1
+#%57 = load i32, i32* %56
+lw $t3, 0($t3)
+#%58 = mul i32 %54, %57
+mult $t2, $t3
+mflo $t2
+#%59 = add i32 %47, 1
+li $k1, 1
+addu $t3, $t1, $k1
+#%60 = srem i32 %59, 2
+li $v0, 2
+div $t3, $v0
+mfhi $t3
+#%61 = srem i32 %47, 5
+li $v1, 5
+div $t1, $v1
+mfhi $t4
+#%62 = getelementptr [5 x [5 x i32]], [5 x [5 x i32]]* @reflect2, i32 0, i32 %61, i32 %61
+la $k0, reflect2
+li $k1, 20
+mult $k1, $t4
+mflo $k1
+addu $k0, $k0, $k1
+li $v0, 4
+mult $v0, $t4
+mflo $v0
+addu $k0, $k0, $v0
+move $t4, $k0
+#%63 = load i32, i32* %62
+lw $t4, 0($t4)
+#%64 = mul i32 %60, %63
+mult $t3, $t4
+mflo $t3
+#%65 = add i32 %58, %64
+addu $t2, $t2, $t3
+#call void @putint(i32 %65)
+move $a0, $t2
+putInt
+#call void @putch(i32 10)
+li $a0, 10
+putCh
+#br label %66
+j main_66
+main_66:
+#%67 = add i32 %47, 1
+li $v1, 1
+addu $t1, $t1, $v1
+#%68 = icmp slt i32 %67, %1
+slt $t2, $t1, $t0
+#br i1 %68, label %69, label %70
+bgtz $t2, main_69
+j main_70
+main_69:
+#br label %71
+j main_71
+main_70:
+#br label %72
+j main_72
+main_71:
+#move %47 <- %67
+#br label %46
+j main_46
+main_72:
+#ret i32 0
+li $v0, 0
+jr $ra

@@ -1,5 +1,6 @@
 package backend.Symbol;
 
+import IR.values.NullValue;
 import IR.values.Value;
 
 import java.util.ArrayList;

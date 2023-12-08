@@ -17,7 +17,6 @@ public class Mem2Reg {
     private Instruction curAlloc;
     private HashSet<Instruction> useInstr;
     private HashSet<Instruction> defInstr;
-    private HashSet<BasicBlock> useBB;
     private HashSet<BasicBlock> defBB;
     private Stack<Value> reachDef;
 
@@ -45,7 +44,6 @@ public class Mem2Reg {
         this.curAlloc = instr;
         this.useInstr = new HashSet<>();
         this.defInstr = new HashSet<>();
-        this.useBB = new HashSet<>();
         this.defBB = new HashSet<>();
         this.reachDef = new Stack<>();
         for (Use use : instr.getUseList()) {
@@ -55,7 +53,6 @@ public class Mem2Reg {
                 defBB.add(user.getBasicBlock());
             } else if (user instanceof LoadInst) {
                 useInstr.add(user);
-                useBB.add(user.getBasicBlock());
             }
         }
     }
