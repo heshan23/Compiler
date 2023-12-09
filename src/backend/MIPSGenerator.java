@@ -19,7 +19,6 @@ import pass.Analysis.MoveInst;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 public class MIPSGenerator {
@@ -30,7 +29,8 @@ public class MIPSGenerator {
     }
 
     private final MipsSymbolTable symbolTables = new MipsSymbolTable();
-    private final List<Register> tmp_reg = Arrays.asList(Register.K0, Register.K1, Register.V0, Register.V1);
+    private final List<Register> tmp_reg = Arrays.asList(Register.K0, Register.K1);
+    //这里设计上选了v1作为特殊的能够保持持久的tmp_reg
     int tmp_ptr = 0;
     Function curFunc;
 
@@ -207,7 +207,8 @@ public class MIPSGenerator {
             return;
         }
         ArrayList<Value> indices = gepInst.getIndices();
-        Register keep = load(pointer);
+        Register keep = Register.V1;
+        assign(keep, pointer);
         int immOff = 0;
         for (Value value : indices) {
             int base;
@@ -239,8 +240,9 @@ public class MIPSGenerator {
     private void parseLoadInst(LoadInst loadInst) {
         if (loadInst.pointer() instanceof GEPInst) {
             Register reg = load(loadInst.pointer());
-            lw(reg, reg, 0);
-            store(reg, loadInst);
+            Register tmp = getTmpReg();
+            lw(tmp, reg, 0);
+            store(tmp, loadInst);
         } else {
             Register reg = load(loadInst.pointer());
             store(reg, loadInst);
@@ -316,9 +318,7 @@ public class MIPSGenerator {
             }
         } else {
             sw(Register.RA, Register.SP, spOff);
-            HashSet<Register> used = new HashSet<>(curFunc.getVar2reg().values());
-            used.retainAll(callInst.getFunction().getVar2reg().values());
-            ArrayList<Register> save = new ArrayList<>(used);
+            ArrayList<Register> save = new ArrayList<>(curFunc.getVar2reg().values());
             //保存寄存器的值
             int rec = 1;
             for (Register reg : save) {
@@ -509,7 +509,7 @@ public class MIPSGenerator {
             return ans;
         }
         ans = getTmpReg();
-        if (value instanceof ConstInt) {
+        if (isNumber(value.getName())) {
             li(ans, value.getName());
         } else if (value instanceof GlobalVar globalVar) {
             la(ans, globalVarLabel(value.getName()));
@@ -593,7 +593,7 @@ public class MIPSGenerator {
     }
 
     private Register getTmpReg() {
-        if (tmp_ptr >= tmp_reg.size()) tmp_ptr = 0;
-        return tmp_reg.get(tmp_ptr++);
+        tmp_ptr = 1 - tmp_ptr;
+        return tmp_reg.get(tmp_ptr);
     }
 }

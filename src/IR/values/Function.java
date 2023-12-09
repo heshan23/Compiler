@@ -17,7 +17,7 @@ public class Function extends Value {
     private final ArrayList<BasicBlock> basicBlocks = new ArrayList<>();
     private boolean hasSideEffect = false;
     /*register alloc*/
-    private HashMap<Value, Register> var2reg;
+    private HashMap<Value, Register> var2reg = new HashMap<>();
 
     public Function(String name, Type type, boolean isLibrary) {
         super(name, type);
