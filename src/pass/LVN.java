@@ -1,15 +1,13 @@
 package pass;
 
 import IR.IRModule;
-import IR.values.BasicBlock;
-import IR.values.ConstInt;
-import IR.values.Function;
-import IR.values.Value;
+import IR.values.*;
 import IR.values.instructions.BinaryInst;
 import IR.values.instructions.CallInst;
 import IR.values.instructions.Instruction;
 import IR.values.instructions.Operator;
 import IR.values.instructions.men.GEPInst;
+import IR.values.instructions.men.LoadInst;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -67,6 +65,13 @@ public class LVN {
         Iterator<Instruction> it = bb.getInstructions().iterator();
         while (it.hasNext()) {
             Instruction instr = it.next();
+            if (instr instanceof LoadInst loadInst) {
+                if (loadInst.pointer() instanceof GlobalVar globalVar && globalVar.isConst()) {
+                    instr.replacedByNewVal(globalVar.getValue());
+                    instr.deleteUse();
+                    it.remove();
+                }
+            }
             if (!(instr instanceof BinaryInst binaryInst && binaryInst.isNumber())) {
                 continue;
             }

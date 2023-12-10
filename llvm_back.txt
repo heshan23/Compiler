@@ -2,42 +2,54 @@ declare i32 @getint()
 declare void @putint(i32)
 declare void @putch(i32)
 declare void @putstr(i8*)
-@hs_new_global_str_0 = dso_local constant [3 x i8] c"->\00"
-@hs_new_global_str_1 = dso_local constant [10 x i8] c"21371119\0a\00"
-@hs_new_global_str_2 = dso_local constant [7 x i8] c"fun1:\0a\00"
-define dso_local void @move(i32 %0, i32 %1) {
-2:
-	call void @putint(i32 %0)
-	%3 = getelementptr inbounds [3 x i8], [3 x i8]* @hs_new_global_str_0, i32 0, i32 0
-	call void @putstr(i8* %3)
-	call void @putint(i32 %1)
-	call void @putch(i32 10)
-	ret void
-}
-define dso_local void @hanoi(i32 %0, i32 %1, i32 %2, i32 %3) {
+@hs_new_global_str_0 = dso_local constant [3 x i8] c", \00"
+define dso_local i32 @fib(i32 %0) {
+1:
+	%2 = icmp eq i32 %0, 1
+	br i1 %2, label %3, label %4
+3:
+	ret i32 1
 4:
-	%5 = icmp eq i32 %0, 1
+	%5 = icmp eq i32 %0, 2
 	br i1 %5, label %6, label %7
 6:
-	call void @move(i32 %1,i32 %3)
-	br label %9
+	ret i32 2
 7:
 	%8 = sub i32 %0, 1
-	call void @hanoi(i32 %8,i32 %1,i32 %3,i32 %2)
-	call void @move(i32 %1,i32 %3)
-	call void @hanoi(i32 %8,i32 %2,i32 %1,i32 %3)
-	br label %9
-9:
-	ret void
+	%9 = call i32 @fib(i32 %8) 
+	%10 = sub i32 %0, 2
+	%11 = call i32 @fib(i32 %10) 
+	%12 = add i32 %9, %11
+	ret i32 %12
 }
 define dso_local i32 @main() {
 0:
 	%1 = call i32 @getint() 
-	%2 = getelementptr inbounds [10 x i8], [10 x i8]* @hs_new_global_str_1, i32 0, i32 0
-	call void @putstr(i8* %2)
-	call void @hanoi(i32 %1,i32 1,i32 2,i32 3)
-	%3 = getelementptr inbounds [7 x i8], [7 x i8]* @hs_new_global_str_2, i32 0, i32 0
-	call void @putstr(i8* %3)
-	call void @putint(i32 0)
+	%2 = call i32 @getint() 
+	%3 = alloca [2 x i32]
+	%4 = getelementptr [2 x i32], [2 x i32]* %3, i32 0, i32 0
+	store i32 1, i32* %4
+	%5 = getelementptr [2 x i32], [2 x i32]* %3, i32 0, i32 1
+	store i32 2, i32* %5
+	%6 = mul i32 %1, %2
+	%7 = sub i32 0, %6
+	%8 = call i32 @fib(i32 4) 
+	%9 = mul i32 %7, %8
+	%10 = call i32 @fib(i32 1) 
+	%11 = getelementptr [2 x i32], [2 x i32]* %3, i32 0, i32 %10
+	%12 = load i32, i32* %11
+	%13 = add i32 %9, %12
+	%14 = mul i32 %13, 5
+	%15 = call i32 @fib(i32 6) 
+	%16 = call i32 @fib(i32 %15) 
+	%17 = sub i32 41440, %16
+	%18 = add i32 %17, -10091
+	call void @putint(i32 %14)
+	%19 = getelementptr inbounds [3 x i8], [3 x i8]* @hs_new_global_str_0, i32 0, i32 0
+	call void @putstr(i8* %19)
+	call void @putint(i32 %18)
+	call void @putstr(i8* %19)
+	call void @putint(i32 -5)
+	call void @putch(i32 10)
 	ret i32 0
 }

@@ -291,8 +291,8 @@ public class MIPSGenerator {
         switch (binaryInst.getOp()) {
             case Add -> add(binaryInst, lVal, rVal);
             case Sub -> sub(binaryInst, lVal, rVal);
-            case Mul -> mul(binaryInst, lVal, rVal);
-            case SDiv -> div(binaryInst, lVal, rVal);
+            case Mul -> optimizeMul(binaryInst, lVal, rVal);
+            case SDiv -> optimizeDiv(binaryInst, lVal, rVal);
             case Mod -> mod(binaryInst, lVal, rVal);
             case Sgt -> cmp("sgt", binaryInst, lVal, rVal);
             case Sge -> cmp("sge", binaryInst, lVal, rVal);
@@ -462,6 +462,99 @@ public class MIPSGenerator {
         if (inSp) {
             store(target, ans);
         }
+    }
+
+    private void optimizeMul(Value ans, Value lVal, Value rVal) {
+        if (!(lVal instanceof ConstInt || rVal instanceof ConstInt)) {
+            mul(ans, lVal, rVal);
+            return;
+        }
+        Value value;
+        int imm;
+        int abs;
+        if (lVal instanceof ConstInt constInt) {
+            imm = constInt.getVal();
+            value = rVal;
+        } else {
+            imm = ((ConstInt) rVal).getVal();
+            value = lVal;
+        }
+        abs = (imm >= 0) ? imm : -imm;
+        Register ansReg = Register.V1;//reg store the ans
+        if (getReg(ans) != null) {
+            ansReg = getReg(ans);
+        }
+        Register reg = load(value);//reg1 store the value
+        if (imm == -1) {
+            OutputHandler.genMIPS("negu " + ansReg + ", " + reg);
+        } else if ((abs & (abs - 1)) == 0) {
+            OutputHandler.genMIPS(String.format("sll %s, %s, %d", ansReg, reg, getCTZ(abs)));
+            if (imm < 0) {
+                OutputHandler.genMIPS("negu " + ansReg + ", " + ansReg);
+            }
+        } else if (((abs - 1) & (abs - 2)) == 0) {
+            OutputHandler.genMIPS(String.format("sll %s, %s, %d", Register.K0, reg, getCTZ(abs - 1)));
+            OutputHandler.genMIPS(String.format("addu %s, %s, %s", ansReg, Register.K0, reg));
+            if (imm < 0) {
+                OutputHandler.genMIPS("negu " + ansReg + ", " + ansReg);
+            }
+        } else if (((abs + 1) & abs) == 0) {
+            OutputHandler.genMIPS(String.format("sll %s, %s, %d", Register.K0, reg, getCTZ(abs + 1)));
+            if (imm < 0) {
+                OutputHandler.genMIPS(String.format("subu %s, %s, %s", ansReg, reg, Register.K0));
+            } else {
+                OutputHandler.genMIPS(String.format("subu %s, %s, %s", ansReg, Register.K0, reg));
+            }
+        } else if (count1(abs) == 2) {
+            int r1 = getLow1(abs);
+            int r2 = getCTZ(abs);
+            OutputHandler.genMIPS(String.format("sll %s, %s, %d", Register.K0, reg, r1));
+            OutputHandler.genMIPS(String.format("sll %s, %s, %d", Register.K1, reg, r2));
+            OutputHandler.genMIPS(String.format("addu %s, %s, %s", ansReg, Register.K0, Register.K1));
+            if (imm < 0) {
+                OutputHandler.genMIPS("negu " + ansReg + ", " + ansReg);
+            }
+        } else {
+            mul(ans, lVal, rVal);
+            return;
+        }
+        if (getReg(ans) == null) store(ansReg, ans);
+
+    }
+
+    private int getCTZ(int num) {
+        int r = 0;
+        num >>>= 1;
+        while (num > 0) {
+            num >>>= 1;
+            r++;
+        }
+        return r;
+    }
+
+    private int count1(int num) {
+        int r = 0;
+        while (num > 0) {
+            r += num & 1;
+            num >>>= 1;
+        }
+        return r;
+    }
+
+    private int getLow1(int num) {
+        int r = 0;
+        while (num > 0) {
+            if ((num & 1) == 1) {
+                return r;
+            }
+            num >>>= 1;
+            r++;
+        }
+        return -1;
+    }
+
+    private void optimizeDiv(Value ans, Value lVal, Value rVal) {
+        div(ans, lVal, rVal);
     }
 
     private void div(Value ans, Value lVal, Value rVal) {

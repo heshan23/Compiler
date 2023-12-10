@@ -19,6 +19,10 @@ public class GlobalVar extends User {
         return value;
     }
 
+    public boolean isConst() {
+        return isConst;
+    }
+
     @Override
     public String toString() {
         if (isConst) {
