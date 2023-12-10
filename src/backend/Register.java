@@ -38,6 +38,10 @@ public enum Register {
         this.name = name;
     }
 
+    public static Register index2reg(int index) {
+        return values()[index];
+    }
+
     @Override
     public String toString() {
         return name;

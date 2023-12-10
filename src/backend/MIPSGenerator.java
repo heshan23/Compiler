@@ -19,6 +19,7 @@ import pass.Analysis.MoveInst;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 public class MIPSGenerator {
@@ -52,11 +53,18 @@ public class MIPSGenerator {
             symbolTables.addSymbolTable();
             OutputHandler.genMIPS(function.getName() + ":");
             int rec = function.getArguments().size();
+            int index = 1;
             for (Argument arg : function.getArguments()) {
-                lw(Register.K0, Register.SP, 4 * rec);
+                if (index >= 4) {
+                    lw(Register.K0, Register.SP, 4 * rec);
+                    getSp(arg.getName(), arg);
+                    sw(Register.K0, Register.SP, getOff(arg.getName()));
+                } else {
+                    Register register = Register.index2reg(Register.A0.ordinal() + index);
+                    function.getVar2reg().put(arg, register);
+                }
                 rec--;
-                getSp(arg.getName(), arg);
-                sw(Register.K0, Register.SP, getOff(arg.getName()));
+                index++;
             }
             for (BasicBlock basicBlock : function.getBasicBlocks()) {
                 OutputHandler.genMIPS(blockLabel(function, basicBlock) + ":");
@@ -318,7 +326,7 @@ public class MIPSGenerator {
             }
         } else {
             sw(Register.RA, Register.SP, spOff);
-            ArrayList<Register> save = new ArrayList<>(curFunc.getVar2reg().values());
+            ArrayList<Register> save = new ArrayList<>(new HashSet<>(curFunc.getVar2reg().values()));
             //保存寄存器的值
             int rec = 1;
             for (Register reg : save) {
@@ -327,8 +335,25 @@ public class MIPSGenerator {
             }
             //压入参数
             for (int i = 1; i < callInst.getOperands().size(); i++) {
-                Register reg = load(callInst.getOperands().get(i));
-                sw(reg, Register.SP, spOff - 4 * rec);
+                Value arg = callInst.getOperands().get(i);
+                if (i < 4) {
+                    Register reg = Register.index2reg(Register.A0.ordinal() + i);
+                    if (arg instanceof Argument && getReg(arg) != null && getReg(arg) != reg) {
+                        lw(reg, Register.SP, spOff - 4 * (save.indexOf(getReg(arg)) + 1));
+                    } else {
+                        assign(reg, callInst.getOperands().get(i));
+                    }
+                } else {
+                    Register reg;
+                    if (arg instanceof Argument && getReg(arg) != null) {
+                        reg = Register.K0;
+                        lw(reg, Register.SP, spOff - 4 * (save.indexOf(getReg(arg)) + 1));
+                    } else {
+                        reg = load(callInst.getOperands().get(i));
+                    }
+                    sw(reg, Register.SP, spOff - 4 * rec);
+
+                }
                 rec++;
             }
             OutputHandler.genMIPS(String.format("addiu $sp, $sp, %d", spOff - 4 * rec));
@@ -491,7 +516,7 @@ public class MIPSGenerator {
             move(reg, getReg(value));
             return;
         }
-        if (value instanceof ConstInt) {
+        if (isNumber(value.getName())) {
             li(reg, value.getName());
         } else if (value instanceof GlobalVar globalVar) {
             la(reg, globalVarLabel(value.getName()));
