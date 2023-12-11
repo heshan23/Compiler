@@ -270,11 +270,11 @@ public class MIPSGenerator {
 
     private void parseBrInst(BrInst brInst) {
         if (brInst.noneCond()) {
-            j(blockLabel(brInst.getTrueBlock()));
+            j(brInst);
         } else {
             Register reg = load(brInst.getCond());
-            bgtz(reg, blockLabel(brInst.getTrueBlock()));
-            j(blockLabel(brInst.getFalseBlock()));
+            blez(reg, blockLabel(brInst.getFalseBlock()));
+            j(brInst);
         }
     }
 
@@ -399,16 +399,24 @@ public class MIPSGenerator {
         OutputHandler.genMIPS("jal " + func);
     }
 
-    private void j(String label) {
-        OutputHandler.genMIPS("j " + label);
+    private void j(BrInst brInst) {
+        BasicBlock bb = brInst.getBasicBlock();
+        ArrayList<BasicBlock> bbs = curFunc.getBasicBlocks();
+        int index = bbs.indexOf(bb);
+        if (index + 1 < bbs.size()) {
+            if (bbs.get(index + 1) == brInst.getTrueBlock()) {
+                return;
+            }
+        }
+        OutputHandler.genMIPS("j " + blockLabel(brInst.getTrueBlock()));
     }
 
     private void jr(Register reg) {
         OutputHandler.genMIPS(String.format("jr %s", reg));
     }
 
-    private void bgtz(Register reg, String label) {
-        OutputHandler.genMIPS("bgtz " + reg + ", " + label);
+    private void blez(Register reg, String label) {
+        OutputHandler.genMIPS("blez " + reg + ", " + label);
     }
 
     private void move(Register reg, Register valReg) {

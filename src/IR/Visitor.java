@@ -413,7 +413,6 @@ public class Visitor {
         curFalseBlock = tmpFalseBlock;
     }
 
-
     private void doIfStmt(IfStmt ifStmt) {
         BasicBlock tmpTrueBlock = curTrueBlock;
         BasicBlock tmpFalseBlock = curFalseBlock;
