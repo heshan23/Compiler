@@ -96,7 +96,7 @@ public class UnaryExp {
     private boolean checkParamNum(FuncSymbol symbol) {
         if (funcRParams == null) {
             if (!symbol.getFuncParams().isEmpty()) {
-                ErrorHandler.getInstance().addError(new ErrorNode(ErrorType.e, Ident.getLine()));
+                ErrorHandler.getInstance().addError(new ErrorNode(ErrorType.d, Ident.getLine()));
                 return true;
             }
         } else if (symbol.getFuncParams().size() != funcRParams.getExps().size()) {

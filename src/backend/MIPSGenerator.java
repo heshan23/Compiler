@@ -15,6 +15,7 @@ import IR.values.instructions.terminator.BrInst;
 import IR.values.instructions.terminator.RetInst;
 import backend.Symbol.MipsSymbol;
 import backend.Symbol.MipsSymbolTable;
+import config.Config;
 import pass.Analysis.MoveInst;
 
 import java.util.ArrayList;
@@ -291,9 +292,18 @@ public class MIPSGenerator {
         switch (binaryInst.getOp()) {
             case Add -> add(binaryInst, lVal, rVal);
             case Sub -> sub(binaryInst, lVal, rVal);
-            case Mul -> optimizeMul(binaryInst, lVal, rVal);
-            case SDiv -> optimizeDiv(binaryInst, lVal, rVal);
-            case Mod -> optimizeMod(binaryInst, lVal, rVal);
+            case Mul -> {
+                if (Config.optimize) optimizeMul(binaryInst, lVal, rVal);
+                else mul(binaryInst, lVal, rVal);
+            }
+            case SDiv -> {
+                if (Config.optimize) optimizeDiv(binaryInst, lVal, rVal);
+                else div(binaryInst, lVal, rVal);
+            }
+            case Mod -> {
+                if (Config.optimize) optimizeMod(binaryInst, lVal, rVal);
+                else mod(binaryInst, lVal, rVal);
+            }
             case Sgt -> cmp("sgt", binaryInst, lVal, rVal);
             case Sge -> cmp("sge", binaryInst, lVal, rVal);
             case Slt -> cmp("slt", binaryInst, lVal, rVal);

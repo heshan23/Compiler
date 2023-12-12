@@ -1,0 +1,814 @@
+.macro getInt
+li $v0, 5
+syscall
+.end_macro
+.macro putInt
+li $v0, 1
+syscall
+.end_macro
+.macro putCh
+li $v0, 11
+syscall
+.end_macro
+.macro putStr
+li $v0, 4
+syscall
+.end_macro
+.data
+N: .word 10
+a: .word 0,1,2,3,4,5,6,7,8,9,
+hs_new_global_str_0: .asciiz ", "
+.text
+jal main
+li $v0, 10
+syscall
+fib:
+fib_1:
+#%2 = alloca i32
+#store i32 %0, i32* %2
+sw $a1, 0($sp)
+#%3 = load i32, i32* %2
+lw $k1, 0($sp)
+sw $k1, -4($sp)
+#%4 = icmp eq i32 %3, 1
+lw $k0, -4($sp)
+li $k1, 1
+seq $k0, $k0, $k1
+sw $k0, -8($sp)
+#br i1 %4, label %5, label %6
+lw $k1, -8($sp)
+blez $k1, fib_6
+fib_5:
+#ret i32 1
+li $v0, 1
+jr $ra
+fib_6:
+#%7 = load i32, i32* %2
+lw $k0, 0($sp)
+sw $k0, -12($sp)
+#%8 = icmp eq i32 %7, 2
+lw $k1, -12($sp)
+li $k0, 2
+seq $k1, $k1, $k0
+sw $k1, -16($sp)
+#br i1 %8, label %9, label %10
+lw $k0, -16($sp)
+blez $k0, fib_10
+fib_9:
+#ret i32 2
+li $v0, 2
+jr $ra
+fib_10:
+#%11 = load i32, i32* %2
+lw $k1, 0($sp)
+sw $k1, -20($sp)
+#%12 = sub i32 %11, 1
+lw $k0, -20($sp)
+li $k1, 1
+subu $k0, $k0, $k1
+sw $k0, -24($sp)
+#%13 = call i32 @fib(i32 %12) 
+sw $ra, -32($sp)
+sw $a1, -36($sp)
+lw $a1, -24($sp)
+addiu $sp, $sp, -44
+jal fib
+addiu $sp, $sp, 44
+lw $ra, -32($sp)
+lw $a1, -36($sp)
+sw $v0, -28($sp)
+#%14 = load i32, i32* %2
+lw $k1, 0($sp)
+sw $k1, -32($sp)
+#%15 = sub i32 %14, 2
+lw $k0, -32($sp)
+li $k1, 2
+subu $k0, $k0, $k1
+sw $k0, -36($sp)
+#%16 = call i32 @fib(i32 %15) 
+sw $ra, -44($sp)
+sw $a1, -48($sp)
+lw $a1, -36($sp)
+addiu $sp, $sp, -56
+jal fib
+addiu $sp, $sp, 56
+lw $ra, -44($sp)
+lw $a1, -48($sp)
+sw $v0, -40($sp)
+#%17 = add i32 %13, %16
+lw $k1, -28($sp)
+lw $k0, -40($sp)
+addu $k1, $k1, $k0
+sw $k1, -44($sp)
+#ret i32 %17
+lw $v0, -44($sp)
+jr $ra
+main:
+main_0:
+#%1 = alloca i32
+#store i32 2, i32* %1
+li $k0, 2
+sw $k0, -48($sp)
+#%2 = alloca i32
+#store i32 5, i32* %2
+li $k1, 5
+sw $k1, -52($sp)
+#%3 = alloca i32
+#store i32 1, i32* %3
+li $k0, 1
+sw $k0, -56($sp)
+#%4 = alloca i32
+#store i32 2, i32* %4
+li $k1, 2
+sw $k1, -60($sp)
+#%5 = call i32 @getint() 
+getInt
+sw $v0, -64($sp)
+#store i32 %5, i32* %1
+lw $k0, -64($sp)
+sw $k0, -48($sp)
+#%6 = call i32 @getint() 
+getInt
+sw $v0, -68($sp)
+#store i32 %6, i32* %2
+lw $k1, -68($sp)
+sw $k1, -52($sp)
+#%7 = load i32, i32* %1
+lw $k0, -48($sp)
+sw $k0, -72($sp)
+#%8 = load i32, i32* %2
+lw $k1, -52($sp)
+sw $k1, -76($sp)
+#%9 = mul i32 %7, %8
+lw $k0, -72($sp)
+lw $k1, -76($sp)
+mult $k0, $k1
+mflo $k0
+sw $k0, -80($sp)
+#%10 = sub i32 0, %9
+li $k1, 0
+lw $k0, -80($sp)
+subu $k1, $k1, $k0
+sw $k1, -84($sp)
+#%11 = call i32 @fib(i32 4) 
+sw $ra, -92($sp)
+li $a1, 4
+addiu $sp, $sp, -100
+jal fib
+addiu $sp, $sp, 100
+lw $ra, -92($sp)
+sw $v0, -88($sp)
+#%12 = mul i32 %10, %11
+lw $k0, -84($sp)
+lw $k1, -88($sp)
+mult $k0, $k1
+mflo $k0
+sw $k0, -92($sp)
+#%13 = add i32 %12, 0
+lw $k1, -92($sp)
+li $k0, 0
+addu $k1, $k1, $k0
+sw $k1, -96($sp)
+#%14 = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 1
+la $v1, a
+addiu $v1, $v1, 4
+sw $v1, -100($sp)
+#%15 = load i32, i32* %14
+lw $k0, -100($sp)
+lw $k1, 0($k0)
+sw $k1, -104($sp)
+#%16 = mul i32 %15, 1
+lw $k0, -104($sp)
+li $k1, 1
+mult $k0, $k1
+mflo $k0
+sw $k0, -108($sp)
+#%17 = add i32 %13, %16
+lw $k1, -96($sp)
+lw $k0, -108($sp)
+addu $k1, $k1, $k0
+sw $k1, -112($sp)
+#%18 = sdiv i32 1, 2
+li $k0, 1
+li $k1, 2
+div $k0, $k1
+mflo $k0
+sw $k0, -116($sp)
+#%19 = sub i32 %17, %18
+lw $k1, -112($sp)
+lw $k0, -116($sp)
+subu $k1, $k1, $k0
+sw $k1, -120($sp)
+#%20 = mul i32 %19, 5
+lw $k0, -120($sp)
+li $k1, 5
+mult $k0, $k1
+mflo $k0
+sw $k0, -124($sp)
+#store i32 %20, i32* %1
+lw $k1, -124($sp)
+sw $k1, -48($sp)
+#%21 = mul i32 7, 5923
+li $k0, 7
+li $k1, 5923
+mult $k0, $k1
+mflo $k0
+sw $k0, -128($sp)
+#%22 = srem i32 %21, 56
+lw $k1, -128($sp)
+li $k0, 56
+div $k1, $k0
+mfhi $k1
+sw $k1, -132($sp)
+#%23 = mul i32 %22, 57
+lw $k0, -132($sp)
+li $k1, 57
+mult $k0, $k1
+mflo $k0
+sw $k0, -136($sp)
+#%24 = call i32 @fib(i32 5) 
+sw $ra, -144($sp)
+li $a1, 5
+addiu $sp, $sp, -152
+jal fib
+addiu $sp, $sp, 152
+lw $ra, -144($sp)
+sw $v0, -140($sp)
+#%25 = add i32 %24, 2
+lw $k1, -140($sp)
+li $k0, 2
+addu $k1, $k1, $k0
+sw $k1, -144($sp)
+#%26 = call i32 @fib(i32 %25) 
+sw $ra, -152($sp)
+lw $a1, -144($sp)
+addiu $sp, $sp, -160
+jal fib
+addiu $sp, $sp, 160
+lw $ra, -152($sp)
+sw $v0, -148($sp)
+#%27 = sub i32 %23, %26
+lw $k0, -136($sp)
+lw $k1, -148($sp)
+subu $k0, $k0, $k1
+sw $k0, -152($sp)
+#%28 = load i32, i32* %3
+lw $k1, -56($sp)
+sw $k1, -156($sp)
+#%29 = load i32, i32* %4
+lw $k0, -60($sp)
+sw $k0, -160($sp)
+#%30 = add i32 %28, %29
+lw $k1, -156($sp)
+lw $k0, -160($sp)
+addu $k1, $k1, $k0
+sw $k1, -164($sp)
+#%31 = sdiv i32 89, 2
+li $k0, 89
+li $k1, 2
+div $k0, $k1
+mflo $k0
+sw $k0, -168($sp)
+#%32 = mul i32 %31, 36
+lw $k1, -168($sp)
+li $k0, 36
+mult $k1, $k0
+mflo $k1
+sw $k1, -172($sp)
+#%33 = sub i32 %32, 53
+lw $k0, -172($sp)
+li $k1, 53
+subu $k0, $k0, $k1
+sw $k0, -176($sp)
+#%34 = sdiv i32 %33, 1
+lw $k1, -176($sp)
+li $k0, 1
+div $k1, $k0
+mflo $k1
+sw $k1, -180($sp)
+#%35 = mul i32 %34, 6
+lw $k0, -180($sp)
+li $k1, 6
+mult $k0, $k1
+mflo $k0
+sw $k0, -184($sp)
+#%36 = sub i32 %30, %35
+lw $k1, -164($sp)
+lw $k0, -184($sp)
+subu $k1, $k1, $k0
+sw $k1, -188($sp)
+#%37 = mul i32 45, 56
+li $k0, 45
+li $k1, 56
+mult $k0, $k1
+mflo $k0
+sw $k0, -192($sp)
+#%38 = sdiv i32 %37, 85
+lw $k1, -192($sp)
+li $k0, 85
+div $k1, $k0
+mflo $k1
+sw $k1, -196($sp)
+#%39 = sub i32 %38, 56
+lw $k0, -196($sp)
+li $k1, 56
+subu $k0, $k0, $k1
+sw $k0, -200($sp)
+#%40 = mul i32 35, 56
+li $k1, 35
+li $k0, 56
+mult $k1, $k0
+mflo $k1
+sw $k1, -204($sp)
+#%41 = sdiv i32 %40, 4
+lw $k0, -204($sp)
+li $k1, 4
+div $k0, $k1
+mflo $k0
+sw $k0, -208($sp)
+#%42 = add i32 %39, %41
+lw $k1, -200($sp)
+lw $k0, -208($sp)
+addu $k1, $k1, $k0
+sw $k1, -212($sp)
+#%43 = sub i32 %42, 9
+lw $k0, -212($sp)
+li $k1, 9
+subu $k0, $k0, $k1
+sw $k0, -216($sp)
+#%44 = mul i32 2, %43
+li $k1, 2
+lw $k0, -216($sp)
+mult $k1, $k0
+mflo $k1
+sw $k1, -220($sp)
+#%45 = sub i32 %36, %44
+lw $k0, -188($sp)
+lw $k1, -220($sp)
+subu $k0, $k0, $k1
+sw $k0, -224($sp)
+#%46 = add i32 %27, %45
+lw $k1, -152($sp)
+lw $k0, -224($sp)
+addu $k1, $k1, $k0
+sw $k1, -228($sp)
+#store i32 %46, i32* %2
+lw $k0, -228($sp)
+sw $k0, -52($sp)
+#%47 = sub i32 0, 6
+li $k1, 0
+li $k0, 6
+subu $k1, $k1, $k0
+sw $k1, -232($sp)
+#%48 = alloca i32
+#store i32 %47, i32* %48
+lw $k0, -232($sp)
+sw $k0, -236($sp)
+#br label %49
+main_49:
+#%50 = load i32, i32* %1
+lw $k1, -48($sp)
+sw $k1, -240($sp)
+#%51 = icmp slt i32 %50, 100
+lw $k0, -240($sp)
+li $k1, 100
+slt $k0, $k0, $k1
+sw $k0, -244($sp)
+#br i1 %51, label %52, label %126
+lw $k1, -244($sp)
+blez $k1, main_126
+main_52:
+#%53 = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 0
+la $v1, a
+sw $v1, -248($sp)
+#%54 = load i32, i32* %53
+lw $k0, -248($sp)
+lw $k1, 0($k0)
+sw $k1, -252($sp)
+#%55 = load i32, i32* %48
+lw $k0, -236($sp)
+sw $k0, -256($sp)
+#%56 = load i32, i32* %48
+lw $k1, -236($sp)
+sw $k1, -260($sp)
+#%57 = mul i32 %55, %56
+lw $k0, -256($sp)
+lw $k1, -260($sp)
+mult $k0, $k1
+mflo $k0
+sw $k0, -264($sp)
+#%58 = add i32 %54, %57
+lw $k1, -252($sp)
+lw $k0, -264($sp)
+addu $k1, $k1, $k0
+sw $k1, -268($sp)
+#%59 = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 0
+la $v1, a
+sw $v1, -272($sp)
+#store i32 %58, i32* %59
+lw $k0, -268($sp)
+lw $k1, -272($sp)
+sw $k0, 0($k1)
+#%60 = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 1
+la $v1, a
+addiu $v1, $v1, 4
+sw $v1, -276($sp)
+#%61 = load i32, i32* %60
+lw $k0, -276($sp)
+lw $k1, 0($k0)
+sw $k1, -280($sp)
+#%62 = load i32, i32* %48
+lw $k0, -236($sp)
+sw $k0, -284($sp)
+#%63 = load i32, i32* %48
+lw $k1, -236($sp)
+sw $k1, -288($sp)
+#%64 = mul i32 %62, %63
+lw $k0, -284($sp)
+lw $k1, -288($sp)
+mult $k0, $k1
+mflo $k0
+sw $k0, -292($sp)
+#%65 = add i32 %61, %64
+lw $k1, -280($sp)
+lw $k0, -292($sp)
+addu $k1, $k1, $k0
+sw $k1, -296($sp)
+#%66 = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 1
+la $v1, a
+addiu $v1, $v1, 4
+sw $v1, -300($sp)
+#store i32 %65, i32* %66
+lw $k0, -296($sp)
+lw $k1, -300($sp)
+sw $k0, 0($k1)
+#%67 = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 2
+la $v1, a
+addiu $v1, $v1, 8
+sw $v1, -304($sp)
+#%68 = load i32, i32* %67
+lw $k0, -304($sp)
+lw $k1, 0($k0)
+sw $k1, -308($sp)
+#%69 = load i32, i32* %48
+lw $k0, -236($sp)
+sw $k0, -312($sp)
+#%70 = load i32, i32* %48
+lw $k1, -236($sp)
+sw $k1, -316($sp)
+#%71 = mul i32 %69, %70
+lw $k0, -312($sp)
+lw $k1, -316($sp)
+mult $k0, $k1
+mflo $k0
+sw $k0, -320($sp)
+#%72 = add i32 %68, %71
+lw $k1, -308($sp)
+lw $k0, -320($sp)
+addu $k1, $k1, $k0
+sw $k1, -324($sp)
+#%73 = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 2
+la $v1, a
+addiu $v1, $v1, 8
+sw $v1, -328($sp)
+#store i32 %72, i32* %73
+lw $k0, -324($sp)
+lw $k1, -328($sp)
+sw $k0, 0($k1)
+#%74 = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 3
+la $v1, a
+addiu $v1, $v1, 12
+sw $v1, -332($sp)
+#%75 = load i32, i32* %74
+lw $k0, -332($sp)
+lw $k1, 0($k0)
+sw $k1, -336($sp)
+#%76 = load i32, i32* %48
+lw $k0, -236($sp)
+sw $k0, -340($sp)
+#%77 = load i32, i32* %48
+lw $k1, -236($sp)
+sw $k1, -344($sp)
+#%78 = mul i32 %76, %77
+lw $k0, -340($sp)
+lw $k1, -344($sp)
+mult $k0, $k1
+mflo $k0
+sw $k0, -348($sp)
+#%79 = add i32 %75, %78
+lw $k1, -336($sp)
+lw $k0, -348($sp)
+addu $k1, $k1, $k0
+sw $k1, -352($sp)
+#%80 = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 3
+la $v1, a
+addiu $v1, $v1, 12
+sw $v1, -356($sp)
+#store i32 %79, i32* %80
+lw $k0, -352($sp)
+lw $k1, -356($sp)
+sw $k0, 0($k1)
+#%81 = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 4
+la $v1, a
+addiu $v1, $v1, 16
+sw $v1, -360($sp)
+#%82 = load i32, i32* %81
+lw $k0, -360($sp)
+lw $k1, 0($k0)
+sw $k1, -364($sp)
+#%83 = load i32, i32* %48
+lw $k0, -236($sp)
+sw $k0, -368($sp)
+#%84 = load i32, i32* %48
+lw $k1, -236($sp)
+sw $k1, -372($sp)
+#%85 = mul i32 %83, %84
+lw $k0, -368($sp)
+lw $k1, -372($sp)
+mult $k0, $k1
+mflo $k0
+sw $k0, -376($sp)
+#%86 = add i32 %82, %85
+lw $k1, -364($sp)
+lw $k0, -376($sp)
+addu $k1, $k1, $k0
+sw $k1, -380($sp)
+#%87 = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 4
+la $v1, a
+addiu $v1, $v1, 16
+sw $v1, -384($sp)
+#store i32 %86, i32* %87
+lw $k0, -380($sp)
+lw $k1, -384($sp)
+sw $k0, 0($k1)
+#%88 = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 5
+la $v1, a
+addiu $v1, $v1, 20
+sw $v1, -388($sp)
+#%89 = load i32, i32* %88
+lw $k0, -388($sp)
+lw $k1, 0($k0)
+sw $k1, -392($sp)
+#%90 = load i32, i32* %48
+lw $k0, -236($sp)
+sw $k0, -396($sp)
+#%91 = load i32, i32* %48
+lw $k1, -236($sp)
+sw $k1, -400($sp)
+#%92 = mul i32 %90, %91
+lw $k0, -396($sp)
+lw $k1, -400($sp)
+mult $k0, $k1
+mflo $k0
+sw $k0, -404($sp)
+#%93 = add i32 %89, %92
+lw $k1, -392($sp)
+lw $k0, -404($sp)
+addu $k1, $k1, $k0
+sw $k1, -408($sp)
+#%94 = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 5
+la $v1, a
+addiu $v1, $v1, 20
+sw $v1, -412($sp)
+#store i32 %93, i32* %94
+lw $k0, -408($sp)
+lw $k1, -412($sp)
+sw $k0, 0($k1)
+#%95 = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 6
+la $v1, a
+addiu $v1, $v1, 24
+sw $v1, -416($sp)
+#%96 = load i32, i32* %95
+lw $k0, -416($sp)
+lw $k1, 0($k0)
+sw $k1, -420($sp)
+#%97 = load i32, i32* %48
+lw $k0, -236($sp)
+sw $k0, -424($sp)
+#%98 = load i32, i32* %48
+lw $k1, -236($sp)
+sw $k1, -428($sp)
+#%99 = mul i32 %97, %98
+lw $k0, -424($sp)
+lw $k1, -428($sp)
+mult $k0, $k1
+mflo $k0
+sw $k0, -432($sp)
+#%100 = add i32 %96, %99
+lw $k1, -420($sp)
+lw $k0, -432($sp)
+addu $k1, $k1, $k0
+sw $k1, -436($sp)
+#%101 = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 6
+la $v1, a
+addiu $v1, $v1, 24
+sw $v1, -440($sp)
+#store i32 %100, i32* %101
+lw $k0, -436($sp)
+lw $k1, -440($sp)
+sw $k0, 0($k1)
+#%102 = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 7
+la $v1, a
+addiu $v1, $v1, 28
+sw $v1, -444($sp)
+#%103 = load i32, i32* %102
+lw $k0, -444($sp)
+lw $k1, 0($k0)
+sw $k1, -448($sp)
+#%104 = load i32, i32* %48
+lw $k0, -236($sp)
+sw $k0, -452($sp)
+#%105 = load i32, i32* %48
+lw $k1, -236($sp)
+sw $k1, -456($sp)
+#%106 = mul i32 %104, %105
+lw $k0, -452($sp)
+lw $k1, -456($sp)
+mult $k0, $k1
+mflo $k0
+sw $k0, -460($sp)
+#%107 = add i32 %103, %106
+lw $k1, -448($sp)
+lw $k0, -460($sp)
+addu $k1, $k1, $k0
+sw $k1, -464($sp)
+#%108 = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 7
+la $v1, a
+addiu $v1, $v1, 28
+sw $v1, -468($sp)
+#store i32 %107, i32* %108
+lw $k0, -464($sp)
+lw $k1, -468($sp)
+sw $k0, 0($k1)
+#%109 = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 8
+la $v1, a
+addiu $v1, $v1, 32
+sw $v1, -472($sp)
+#%110 = load i32, i32* %109
+lw $k0, -472($sp)
+lw $k1, 0($k0)
+sw $k1, -476($sp)
+#%111 = load i32, i32* %48
+lw $k0, -236($sp)
+sw $k0, -480($sp)
+#%112 = load i32, i32* %48
+lw $k1, -236($sp)
+sw $k1, -484($sp)
+#%113 = mul i32 %111, %112
+lw $k0, -480($sp)
+lw $k1, -484($sp)
+mult $k0, $k1
+mflo $k0
+sw $k0, -488($sp)
+#%114 = add i32 %110, %113
+lw $k1, -476($sp)
+lw $k0, -488($sp)
+addu $k1, $k1, $k0
+sw $k1, -492($sp)
+#%115 = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 8
+la $v1, a
+addiu $v1, $v1, 32
+sw $v1, -496($sp)
+#store i32 %114, i32* %115
+lw $k0, -492($sp)
+lw $k1, -496($sp)
+sw $k0, 0($k1)
+#%116 = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 9
+la $v1, a
+addiu $v1, $v1, 36
+sw $v1, -500($sp)
+#%117 = load i32, i32* %116
+lw $k0, -500($sp)
+lw $k1, 0($k0)
+sw $k1, -504($sp)
+#%118 = load i32, i32* %48
+lw $k0, -236($sp)
+sw $k0, -508($sp)
+#%119 = load i32, i32* %48
+lw $k1, -236($sp)
+sw $k1, -512($sp)
+#%120 = mul i32 %118, %119
+lw $k0, -508($sp)
+lw $k1, -512($sp)
+mult $k0, $k1
+mflo $k0
+sw $k0, -516($sp)
+#%121 = add i32 %117, %120
+lw $k1, -504($sp)
+lw $k0, -516($sp)
+addu $k1, $k1, $k0
+sw $k1, -520($sp)
+#%122 = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 9
+la $v1, a
+addiu $v1, $v1, 36
+sw $v1, -524($sp)
+#store i32 %121, i32* %122
+lw $k0, -520($sp)
+lw $k1, -524($sp)
+sw $k0, 0($k1)
+#br label %123
+main_123:
+#%124 = load i32, i32* %1
+lw $k0, -48($sp)
+sw $k0, -528($sp)
+#%125 = add i32 %124, 1
+lw $k1, -528($sp)
+li $k0, 1
+addu $k1, $k1, $k0
+sw $k1, -532($sp)
+#store i32 %125, i32* %1
+lw $k0, -532($sp)
+sw $k0, -48($sp)
+#br label %49
+j main_49
+main_126:
+#store i32 0, i32* %1
+li $k1, 0
+sw $k1, -48($sp)
+#br label %127
+main_127:
+#%128 = load i32, i32* %1
+lw $k0, -48($sp)
+sw $k0, -536($sp)
+#%129 = icmp slt i32 %128, 10
+lw $k1, -536($sp)
+li $k0, 10
+slt $k1, $k1, $k0
+sw $k1, -540($sp)
+#br i1 %129, label %130, label %138
+lw $k0, -540($sp)
+blez $k0, main_138
+main_130:
+#%131 = load i32, i32* %1
+lw $k1, -48($sp)
+sw $k1, -544($sp)
+#%132 = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 %131
+la $v1, a
+li $k0, 4
+lw $k1, -544($sp)
+mult $k0, $k1
+mflo $k0
+addu $v1, $v1, $k0
+sw $v1, -548($sp)
+#%133 = load i32, i32* %132
+lw $k0, -548($sp)
+lw $k1, 0($k0)
+sw $k1, -552($sp)
+#call void @putint(i32 %133)
+lw $a0, -552($sp)
+putInt
+#%134 = getelementptr inbounds [3 x i8], [3 x i8]* @hs_new_global_str_0, i32 0, i32 0
+#call void @putstr(i8* %134)
+la $a0, hs_new_global_str_0
+putStr
+#%135 = load i32, i32* %1
+lw $k0, -48($sp)
+sw $k0, -560($sp)
+#%136 = add i32 %135, 1
+lw $k1, -560($sp)
+li $k0, 1
+addu $k1, $k1, $k0
+sw $k1, -564($sp)
+#store i32 %136, i32* %1
+lw $k0, -564($sp)
+sw $k0, -48($sp)
+#br label %137
+main_137:
+#br label %127
+j main_127
+main_138:
+#call void @putch(i32 10)
+li $a0, 10
+putCh
+#%139 = load i32, i32* %1
+lw $k1, -48($sp)
+sw $k1, -568($sp)
+#call void @putint(i32 %139)
+lw $a0, -568($sp)
+putInt
+#%140 = getelementptr inbounds [3 x i8], [3 x i8]* @hs_new_global_str_0, i32 0, i32 0
+#call void @putstr(i8* %140)
+la $a0, hs_new_global_str_0
+putStr
+#%141 = load i32, i32* %2
+lw $k0, -52($sp)
+sw $k0, -576($sp)
+#call void @putint(i32 %141)
+lw $a0, -576($sp)
+putInt
+#%142 = getelementptr inbounds [3 x i8], [3 x i8]* @hs_new_global_str_0, i32 0, i32 0
+#call void @putstr(i8* %142)
+la $a0, hs_new_global_str_0
+putStr
+#%143 = load i32, i32* %48
+lw $k1, -236($sp)
+sw $k1, -584($sp)
+#call void @putint(i32 %143)
+lw $a0, -584($sp)
+putInt
+#call void @putch(i32 10)
+li $a0, 10
+putCh
+#ret i32 0
+li $v0, 0
+jr $ra

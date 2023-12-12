@@ -28,6 +28,9 @@ public class Compiler {
         if (Config.checkError) {
             compUnit.checkError();
             ErrorHandler.getInstance().logErrors();
+            if (ErrorHandler.getInstance().hasError()) {
+                return;
+            }
         }
         if (Config.genLLVM) {
             Visitor visitor = new Visitor();
@@ -40,8 +43,8 @@ public class Compiler {
                 IRModule.getInstance().genLLVm();
             }
             if (Config.genMIPS) {
+                new DelRedundantInst(IRModule.getInstance()).run();
                 if (Config.optimize) {
-                    new DelRedundantInst(IRModule.getInstance()).run();
                     new RegAlloc(IRModule.getInstance()).run();
                     new RemovePhi(IRModule.getInstance()).run();
                     Config.setOutLLVM(Config.backLLVM);

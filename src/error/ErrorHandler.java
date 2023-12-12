@@ -30,6 +30,10 @@ public class ErrorHandler {
         }
     }
 
+    public boolean hasError() {
+        return !errorNodes.isEmpty();
+    }
+
     public void addSymbolTable(Type type) {
         symbolTables.add(new SymbolTables(type));
     }
