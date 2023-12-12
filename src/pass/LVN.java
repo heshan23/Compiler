@@ -142,7 +142,10 @@ public class LVN {
             }
             case Mod -> {
                 //0%a,a%1
-                if (isZero(left) || isOne(right)) return new ConstInt(0);
+                if (isZero(left) || isOne(right)
+                        || (right instanceof ConstInt constInt && constInt.getVal() == -1)) {
+                    return new ConstInt(0);
+                }
             }
         }
         return null;

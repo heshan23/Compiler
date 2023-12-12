@@ -293,7 +293,7 @@ public class MIPSGenerator {
             case Sub -> sub(binaryInst, lVal, rVal);
             case Mul -> optimizeMul(binaryInst, lVal, rVal);
             case SDiv -> optimizeDiv(binaryInst, lVal, rVal);
-            case Mod -> mod(binaryInst, lVal, rVal);
+            case Mod -> optimizeMod(binaryInst, lVal, rVal);
             case Sgt -> cmp("sgt", binaryInst, lVal, rVal);
             case Sge -> cmp("sge", binaryInst, lVal, rVal);
             case Slt -> cmp("slt", binaryInst, lVal, rVal);
@@ -479,7 +479,6 @@ public class MIPSGenerator {
         }
         Value value;
         int imm;
-        int abs;
         if (lVal instanceof ConstInt constInt) {
             imm = constInt.getVal();
             value = rVal;
@@ -487,12 +486,12 @@ public class MIPSGenerator {
             imm = ((ConstInt) rVal).getVal();
             value = lVal;
         }
-        abs = (imm >= 0) ? imm : -imm;
-        Register ansReg = Register.V1;//reg store the ans
+        int abs = (imm >= 0) ? imm : -imm;
+        Register ansReg = Register.V1;
         if (getReg(ans) != null) {
             ansReg = getReg(ans);
         }
-        Register reg = load(value);//reg1 store the value
+        Register reg = load(value);
         if (imm == -1) {
             OutputHandler.genMIPS("negu " + ansReg + ", " + reg);
         } else if ((abs & (abs - 1)) == 0) {
@@ -527,7 +526,6 @@ public class MIPSGenerator {
             return;
         }
         if (getReg(ans) == null) store(ansReg, ans);
-
     }
 
     private int getCTZ(int num) {
@@ -562,7 +560,97 @@ public class MIPSGenerator {
     }
 
     private void optimizeDiv(Value ans, Value lVal, Value rVal) {
-        div(ans, lVal, rVal);
+        if (!(lVal instanceof ConstInt || rVal instanceof ConstInt)) {
+            div(ans, lVal, rVal);
+            return;
+        }
+        Register ansReg = Register.V1;
+        if (getReg(ans) != null) {
+            ansReg = getReg(ans);
+        }
+        optimizeDiv(ansReg, lVal, rVal);
+        if (getReg(ans) == null) store(ansReg, ans);
+    }
+
+    private void optimizeDiv(Register ansReg, Value lVal, Value rVal) {
+        Value value;
+        int imm;
+        if (lVal instanceof ConstInt constInt) {
+            imm = constInt.getVal();
+            value = rVal;
+        } else {
+            imm = ((ConstInt) rVal).getVal();
+            value = lVal;
+        }
+        int abs = (imm >= 0) ? imm : -imm;
+        Register reg = load(value);
+        if (imm == -1) {
+            OutputHandler.genMIPS("negu " + ansReg + ", " + reg);
+        } else if ((abs & (abs - 1)) == 0) {
+            // (n + ((n >> 31) >>> (32 - l))) >> l
+            int l = getCTZ(abs);
+            OutputHandler.genMIPS(String.format("sra %s, %s, %d", Register.K0, reg, 31));
+            OutputHandler.genMIPS(String.format("srl %s, %s, %d", Register.K0, Register.K0, 32 - l));
+            OutputHandler.genMIPS(String.format("addu %s, %s, %s", Register.K0, Register.K0, reg));
+            OutputHandler.genMIPS(String.format("sra %s, %s, %d", ansReg, Register.K0, l));
+        } else {
+            long[] res = multiplier(abs);
+            long m = res[0];
+            int sh = (int) res[1];
+            if (m <= 2147483647) {
+                OutputHandler.genMIPS("li " + Register.K0 + ", " + m);
+                OutputHandler.genMIPS("mult " + reg + ", " + Register.K0);
+                OutputHandler.genMIPS("mfhi " + Register.K0);
+            } else {
+                OutputHandler.genMIPS("li " + Register.K0 + ", " + (m - (1L << 32)));
+                OutputHandler.genMIPS("mult " + reg + ", " + Register.K0);
+                OutputHandler.genMIPS("mfhi " + Register.K0);
+                OutputHandler.genMIPS(String.format("addu %s, %s, %s", Register.K0, Register.K0, reg));
+            }
+            OutputHandler.genMIPS(String.format("sra %s, %s, %d", Register.K0, Register.K0, sh));
+            OutputHandler.genMIPS(String.format("srl %s, %s, %d", Register.K1, reg, 31));
+            OutputHandler.genMIPS(String.format("addu %s, %s, %s", ansReg, Register.K0, Register.K1));
+        }
+    }
+
+    private void optimizeMod(Value ans, Value lVal, Value rVal) {
+        if (!(lVal instanceof ConstInt || rVal instanceof ConstInt)) {
+            mod(ans, lVal, rVal);
+            return;
+        }
+        Value value;
+        Value immValue;
+        if (lVal instanceof ConstInt) {
+            value = rVal;
+            immValue = lVal;
+        } else {
+            value = lVal;
+            immValue = rVal;
+        }
+        Register ansReg = Register.V1;
+        if (getReg(ans) != null) {
+            ansReg = getReg(ans);
+        }
+        Register reg = load(value);
+        if (reg == ansReg) {
+            OutputHandler.genMIPS("move " + Register.V0 + ", " + reg);
+            reg = Register.V0;
+        }
+        optimizeDiv(ans, lVal, rVal);
+        optimizeMul(ans, ans, immValue);
+        OutputHandler.genMIPS(String.format("sub %s, %s, %s", ansReg, reg, ansReg));
+        if (getReg(ans) == null) store(ansReg, ans);
+    }
+
+    private long[] multiplier(int d) {
+        long nc = (1L << 31) - (1L << 31) % d - 1;
+        long p = 32;
+        while ((1L << p) <= nc * (d - (1L << p) % d)) {
+            p++;
+        }
+        long m = ((1L << p) + (long) d - (1L << p) % d) / (long) d;
+        long n = ((m << 32) >>> 32);
+        return new long[]{n, p - 32};
     }
 
     private void div(Value ans, Value lVal, Value rVal) {
